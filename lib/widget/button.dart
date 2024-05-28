@@ -22,7 +22,6 @@ class AppButton {
     return GestureDetector(
       onTap: () => onTap.call(),
       child: Container(
-        width: MediaQuery.of(context).size.width,
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         margin: EdgeInsets.symmetric(horizontal: 32.sp),
         decoration: BoxDecoration(
@@ -60,8 +59,56 @@ class AppButton {
     );
   }
 
-  static smallButton() {
-    return Container();
+  static smallButton(
+    BuildContext context, {
+    required String text,
+    String? fontFamily,
+    double? textSize,
+    dynamic icon,
+    Color? textColor,
+    required Color backgroundColor,
+    Color? iconColor,
+    Color? borderColor,
+    Color? shadowColor,
+    required Function() onTap,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        onTap.call();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColor.WHITE_60),
+          boxShadow: [
+            BoxShadow(
+              color: AppColor.SHADOW,
+              spreadRadius: 2,
+              blurRadius: 4,
+              offset: const Offset(0, 0),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            icon == null ? Container() : icon,
+            SizedBox(width: icon == null ? 0 : 8.w),
+            Text(
+              text,
+              style: TextStyle(
+                color: textColor ?? AppColor.WHITE,
+                fontSize: (textSize ?? 11).sp,
+                package: 'khmer_fonts',
+                fontFamily: fontFamily ?? KhmerFonts.fasthand,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   static bigButton(

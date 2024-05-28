@@ -17,6 +17,7 @@ class AppColor {
   static final RED_OPACITY = const Color(0xffDC507A).withOpacity(0.7);
   static final GREEN_OPACITY = const Color(0xff227E3C).withOpacity(0.7);
   static final BLUE_OPACITY = const Color(0xff062181).withOpacity(0.6);
+  static final BLACK_OPACITY = const Color(0xff383D3F).withOpacity(0.24);
   static final SHADOW = const Color(0xffFFFCFC).withOpacity(0.25);
   static final WHITE_60 = const Color(0xffFFFFFF).withOpacity(0.6);
   static final WHITE_70 = const Color(0xffFFFFFF).withOpacity(0.7);
