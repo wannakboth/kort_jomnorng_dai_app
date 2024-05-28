@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:khmer_fonts/khmer_fonts.dart';
@@ -6,6 +7,9 @@ import '../../widget/app_widget.dart';
 import '../../widget/background.dart';
 import '../../widget/button.dart';
 import '../../widget/color.dart';
+import '../../widget/custom_tabbar_indicator.dart';
+import '../../widget/dismiss_keyboad.dart';
+import '../../widget/icon.dart';
 import '../../widget/stroke_text.dart';
 
 class ReportScreen extends StatefulWidget {
@@ -17,13 +21,52 @@ class ReportScreen extends StatefulWidget {
 
 class _ReportScreenState extends State<ReportScreen>
     with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  int _selectedIndex = 0;
+
+  final searchFocusNode = FocusNode();
+  final searchController = TextEditingController();
+
+  final List<String> _pageOptions = [
+    'ទាំងអស់',
+    'រៀល',
+    'ដុល្លារ',
+  ];
+
+  @override
+  void initState() {
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      setState(() {
+        _selectedIndex = _tabController.index;
+      });
+    });
+
+    searchController.addListener(_onSearchChanged);
+    super.initState();
+  }
+
+  _onSearchChanged() {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    searchController.removeListener(_onSearchChanged);
+    searchController.dispose();
+    searchFocusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Background(
-      widgets: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: buildAppBar(),
-        body: buildBody(),
+      widgets: DismissKeyboard(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: buildAppBar(),
+          body: buildBody(),
+        ),
       ),
     );
   }
@@ -33,104 +76,233 @@ class _ReportScreenState extends State<ReportScreen>
       mainAxisSize: MainAxisSize.min,
       children: [
         title(),
+        const SizedBox(height: 8),
+        searchField(),
+        const SizedBox(height: 8),
         tabbar(),
+        const SizedBox(height: 24),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              Text('Content of Tab 1'),
+              Text('Content of Tab 2'),
+              Text('Content of Tab 3'),
+            ],
+          ),
+        ),
       ],
     );
-  }
-
-  final List<String> _pageOptions = [
-    'ទាំងអស់',
-    'រៀល',
-    'ដុល្លារ',
-  ];
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    _tabController = TabController(length: 3, vsync: this);
-    super.initState();
   }
 
   tabbar() {
-    // return Column(
-    //   children: <Widget>[
-    //     TabBar(
-    //       controller: _tabController,
-    //       indicator: BoxDecoration(
-    //         // color: Colors.white,
-    //         borderRadius: BorderRadius.circular(25),
-    //         boxShadow: [
-    //           BoxShadow(
-    //             color: AppColor.SHADOW,
-    //             spreadRadius: 2,
-    //             blurRadius: 4,
-    //             offset: const Offset(0, 0),
-    //           ),
-    //         ],
-    //       ),
-    //       tabs: [
-    //         Tab(text: 'Tab 1'),
-    //         Tab(text: 'Tab 2'),
-    //         Tab(text: 'Tab 3'),
-    //       ],
-    //     ),
-    //     Expanded(
-    //       child: TabBarView(
-    //         controller: _tabController,
-    //         children: <Widget>[
-    //           Center(child: Text('Content of Tab 1')),
-    //           Center(child: Text('Content of Tab 2')),
-    //           Center(child: Text('Content of Tab 3')),
-    //         ],
-    //       ),
-    //     ),
-    //   ],
-    // );
-    return TabBar(
-      dividerColor: Colors.transparent,
-      indicatorPadding: const EdgeInsets.all(2),
-      unselectedLabelColor: Colors.black,
-      unselectedLabelStyle: TextStyle(
-        color: AppColor.PRIMARY,
-        fontSize: 11.sp,
-        fontWeight: FontWeight.w500,
-        package: 'khmer_fonts',
-        fontFamily: KhmerFonts.fasthand,
-      ),
-      labelStyle: TextStyle(
-        color: Colors.white,
-        fontSize: 11.sp,
-        fontWeight: FontWeight.w500,
-        package: 'khmer_fonts',
-        fontFamily: KhmerFonts.fasthand,
-      ),
-      labelColor: Colors.white,
-      controller: _tabController,
-      indicator: BoxDecoration(
-        borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.SHADOW,
-            spreadRadius: 2,
-            blurRadius: 4,
-            offset: const Offset(0, 0),
+    return Padding(
+      padding: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width * 0.1),
+      child: TabBar(
+        dividerColor: Colors.transparent,
+        unselectedLabelColor: Colors.black,
+        unselectedLabelStyle: TextStyle(
+          color: AppColor.PRIMARY,
+          fontSize: 11.sp,
+          fontWeight: FontWeight.w500,
+          package: 'khmer_fonts',
+          fontFamily: KhmerFonts.fasthand,
+        ),
+        labelStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 11.sp,
+          fontWeight: FontWeight.w500,
+          package: 'khmer_fonts',
+          fontFamily: KhmerFonts.fasthand,
+        ),
+        labelColor: Colors.white,
+        labelPadding: const EdgeInsets.all(0),
+        controller: _tabController,
+        indicator: const BoxDecoration(),
+        tabs: [
+          Tab(
+            child: AppButton.smallButton(
+              context,
+              text: _pageOptions[0],
+              icon: AppIcon.money(width: 0, height: 0),
+              space: 0,
+              horizontal: 22,
+              backgroundColor: AppColor.BLACK_OPACITY,
+              shadow: _selectedIndex == 0
+                  ? [
+                      BoxShadow(
+                        color: AppColor.SHADOW,
+                        spreadRadius: 2,
+                        blurRadius: 4,
+                        offset: const Offset(0, 0),
+                      ),
+                    ]
+                  : [],
+              onTap: () {
+                _tabController.animateTo(0);
+              },
+            ),
+          ),
+          Tab(
+            child: AppButton.smallButton(
+              context,
+              text: _pageOptions[1],
+              icon: AppIcon.riel(),
+              backgroundColor: AppColor.PRIMARY_OPACITY,
+              shadow: _selectedIndex == 1
+                  ? [
+                      BoxShadow(
+                        color: AppColor.SHADOW,
+                        spreadRadius: 2,
+                        blurRadius: 4,
+                        offset: const Offset(0, 0),
+                      ),
+                    ]
+                  : [],
+              onTap: () {
+                _tabController.animateTo(1);
+              },
+            ),
+          ),
+          Tab(
+            child: AppButton.smallButton(
+              context,
+              text: _pageOptions[2],
+              icon: AppIcon.dollar(),
+              backgroundColor: AppColor.RED_OPACITY,
+              shadow: _selectedIndex == 2
+                  ? [
+                      BoxShadow(
+                        color: AppColor.SHADOW,
+                        spreadRadius: 2,
+                        blurRadius: 4,
+                        offset: const Offset(0, 0),
+                      ),
+                    ]
+                  : [],
+              onTap: () {
+                _tabController.animateTo(2);
+              },
+            ),
           ),
         ],
       ),
-      indicatorSize: TabBarIndicatorSize.tab,
-      tabs: [
-        // Tab(text: _pageOptions[0]),
-        AppButton.smallButton(context,
-            text: _pageOptions[0],
-            backgroundColor: AppColor.BLACK_OPACITY, onTap: () {
-          setState(() {
-            _tabController.index;
-          });
-        }),
-        Tab(text: _pageOptions[1]),
-        Tab(text: _pageOptions[2]),
-      ],
     );
+  }
+
+  searchField() {
+    return Container(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: TextFormField(
+                controller: searchController,
+                focusNode: searchFocusNode,
+                obscureText: false,
+                textCapitalization: TextCapitalization.sentences,
+                textInputAction: TextInputAction.search,
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: AppColor.WHITE,
+                  package: 'khmer_fonts',
+                  fontFamily: KhmerFonts.fasthand,
+                ),
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  labelStyle: TextStyle(
+                    fontSize: 12.sp,
+                    color: AppColor.WHITE,
+                    package: 'khmer_fonts',
+                    fontFamily: KhmerFonts.fasthand,
+                  ),
+                  hintText: 'ស្វែងរកឈ្មោះភ្ញៀវ...',
+                  hintStyle: TextStyle(
+                    fontSize: 12.sp,
+                    color: AppColor.WHITE_60,
+                    package: 'khmer_fonts',
+                    fontFamily: KhmerFonts.fasthand,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: AppColor.WHITE,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: AppColor.PRIMARY,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: AppColor.RED,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: AppColor.RED,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  filled: true,
+                  fillColor: AppColor.BLUE_OPACITY,
+                  prefixIcon: Icon(
+                    CupertinoIcons.search,
+                    color: AppColor.WHITE,
+                  ),
+                  suffixIcon: searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(
+                            Icons.close_rounded,
+                            color: AppColor.WHITE,
+                            size: 18,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              searchController.clear();
+                            });
+                          },
+                        )
+                      : null,
+                ),
+                onFieldSubmitted: (value) {
+                  // action.call();
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  suffix() {
+    if (searchController.text.isNotEmpty) {
+      setState(() {
+        IconButton(
+          icon: Icon(
+            Icons.close_rounded,
+            color: AppColor.WHITE,
+            size: 18,
+          ),
+          onPressed: () {
+            setState(() {
+              searchController.clear();
+            });
+          },
+        );
+      });
+    }
   }
 
   title() {

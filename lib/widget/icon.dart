@@ -68,4 +68,13 @@ class AppIcon {
       color: color ?? AppColor.WHITE,
     );
   }
+
+  static money({double? width, double? height, Color? color}) {
+    return SvgPicture.asset(
+      'assets/icons/money.svg',
+      width: (width ?? 18).sp,
+      height: (height ?? 18).sp,
+      color: color ?? AppColor.WHITE,
+    );
+  }
 }

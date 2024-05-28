@@ -65,11 +65,16 @@ class AppButton {
     String? fontFamily,
     double? textSize,
     dynamic icon,
+    Widget? widget,
     Color? textColor,
     required Color backgroundColor,
     Color? iconColor,
     Color? borderColor,
     Color? shadowColor,
+    double? space,
+    double? vertical,
+    double? horizontal,
+    List<BoxShadow>? shadow,
     required Function() onTap,
   }) {
     return GestureDetector(
@@ -77,25 +82,28 @@ class AppButton {
         onTap.call();
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+        padding: EdgeInsets.symmetric(
+            vertical: vertical ?? 6, horizontal: horizontal ?? 16),
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColor.WHITE_60),
-          boxShadow: [
-            BoxShadow(
-              color: AppColor.SHADOW,
-              spreadRadius: 2,
-              blurRadius: 4,
-              offset: const Offset(0, 0),
-            ),
-          ],
+          boxShadow: shadow != null
+              ? shadow
+              : [
+                  BoxShadow(
+                    color: AppColor.SHADOW,
+                    spreadRadius: 2,
+                    blurRadius: 4,
+                    offset: const Offset(0, 0),
+                  ),
+                ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            icon == null ? Container() : icon,
-            SizedBox(width: icon == null ? 0 : 8.w),
+            icon == null ? widget : icon,
+            SizedBox(width: space != null ? 0 : 8.w),
             Text(
               text,
               style: TextStyle(
