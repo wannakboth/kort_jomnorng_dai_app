@@ -13,6 +13,9 @@ dependencies:
 
   cupertino_icons: ^1.0.6
   get: ^4.6.6
+  khmer_fonts: ^0.0.6
+  flutter_screenutil: ^5.9.1
+  flutter_svg: ^2.0.10+1
 
 dev_dependencies:
   flutter_test:
@@ -29,12 +32,3 @@ flutter:
     - assets/images/
     - assets/background/
     - assets/icons/
-    - assets/fonts/
-
-  fonts:
-    - family: KhmerHeader
-      fonts:
-        - asset: assets/fonts/KhmerOSDangrek.ttf
-    - family: KhmerNormal
-      fonts:
-        - asset: assets/fonts/KhmerOSfasthand.ttf
