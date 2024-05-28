@@ -17,7 +17,7 @@ class AppButton {
     Color? iconColor,
     Color? borderColor,
     Color? shadowColor,
-    required Function onTap,
+    required Function() onTap,
   }) {
     return GestureDetector(
       onTap: () => onTap.call(),

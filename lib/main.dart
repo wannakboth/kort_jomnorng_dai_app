@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'home/home_screen.dart';
+import 'routes/routes.dart';
+import 'widget/go_navigate.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,9 +19,11 @@ class MyApp extends StatelessWidget {
       splitScreenMode: true,
       builder: (_ , child) {
         ScreenUtil.init(_);
-        return const MaterialApp(
+        return  MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: HomeScreen(),
+          navigatorKey: GoNavigate.navigatorKey,
+          initialRoute: '/home',
+        routes: routes,
         );
       }
     );
