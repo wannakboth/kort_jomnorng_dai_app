@@ -87,17 +87,16 @@ class AppButton {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColor.WHITE_60),
-          boxShadow: shadow != null
-              ? shadow
-              : [
-                  BoxShadow(
-                    color: AppColor.SHADOW,
-                    spreadRadius: 2,
-                    blurRadius: 4,
-                    offset: const Offset(0, 0),
-                  ),
-                ],
+          border: Border.all(color: borderColor ?? AppColor.WHITE_60),
+          boxShadow: shadow ??
+              [
+                BoxShadow(
+                  color: AppColor.SHADOW,
+                  spreadRadius: 2,
+                  blurRadius: 4,
+                  offset: const Offset(0, 0),
+                ),
+              ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

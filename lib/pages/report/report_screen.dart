@@ -7,10 +7,12 @@ import '../../widget/app_widget.dart';
 import '../../widget/background.dart';
 import '../../widget/button.dart';
 import '../../widget/color.dart';
-import '../../widget/custom_tabbar_indicator.dart';
 import '../../widget/dismiss_keyboad.dart';
 import '../../widget/icon.dart';
 import '../../widget/stroke_text.dart';
+import 'tab_all.dart';
+import 'tab_dollar.dart';
+import 'tab_riel.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
@@ -73,7 +75,6 @@ class _ReportScreenState extends State<ReportScreen>
 
   buildBody() {
     return Column(
-      mainAxisSize: MainAxisSize.min,
       children: [
         title(),
         const SizedBox(height: 8),
@@ -85,9 +86,9 @@ class _ReportScreenState extends State<ReportScreen>
           child: TabBarView(
             controller: _tabController,
             children: [
-              Text('Content of Tab 1'),
-              Text('Content of Tab 2'),
-              Text('Content of Tab 3'),
+              TabAll(),
+              TabRiel(),
+              TabDollar(),
             ],
           ),
         ),
@@ -129,11 +130,13 @@ class _ReportScreenState extends State<ReportScreen>
               space: 0,
               horizontal: 22,
               backgroundColor: AppColor.BLACK_OPACITY,
+              borderColor:
+                  _selectedIndex == 0 ? AppColor.WHITE : AppColor.WHITE_60,
               shadow: _selectedIndex == 0
                   ? [
                       BoxShadow(
                         color: AppColor.SHADOW,
-                        spreadRadius: 2,
+                        spreadRadius: 4,
                         blurRadius: 4,
                         offset: const Offset(0, 0),
                       ),
@@ -150,11 +153,13 @@ class _ReportScreenState extends State<ReportScreen>
               text: _pageOptions[1],
               icon: AppIcon.riel(),
               backgroundColor: AppColor.PRIMARY_OPACITY,
+              borderColor:
+                  _selectedIndex == 1 ? AppColor.WHITE : AppColor.WHITE_60,
               shadow: _selectedIndex == 1
                   ? [
                       BoxShadow(
                         color: AppColor.SHADOW,
-                        spreadRadius: 2,
+                        spreadRadius: 4,
                         blurRadius: 4,
                         offset: const Offset(0, 0),
                       ),
@@ -171,11 +176,13 @@ class _ReportScreenState extends State<ReportScreen>
               text: _pageOptions[2],
               icon: AppIcon.dollar(),
               backgroundColor: AppColor.RED_OPACITY,
+              borderColor:
+                  _selectedIndex == 2 ? AppColor.WHITE : AppColor.WHITE_60,
               shadow: _selectedIndex == 2
                   ? [
                       BoxShadow(
                         color: AppColor.SHADOW,
-                        spreadRadius: 2,
+                        spreadRadius: 4,
                         blurRadius: 4,
                         offset: const Offset(0, 0),
                       ),
