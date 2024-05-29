@@ -206,7 +206,7 @@ class _ReportScreenState extends State<ReportScreen>
                 textCapitalization: TextCapitalization.sentences,
                 textInputAction: TextInputAction.search,
                 style: TextStyle(
-                  fontSize: 12.sp,
+                  fontSize: 11.sp,
                   color: AppColor.WHITE,
                   package: 'khmer_fonts',
                   fontFamily: KhmerFonts.fasthand,
@@ -214,14 +214,14 @@ class _ReportScreenState extends State<ReportScreen>
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   labelStyle: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 11.sp,
                     color: AppColor.WHITE,
                     package: 'khmer_fonts',
                     fontFamily: KhmerFonts.fasthand,
                   ),
                   hintText: 'ស្វែងរកឈ្មោះភ្ញៀវ...',
                   hintStyle: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 11.sp,
                     color: AppColor.WHITE_60,
                     package: 'khmer_fonts',
                     fontFamily: KhmerFonts.fasthand,

@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
         AppButton.bigButton(
           context,
           text: 'ស្កេន QR Code',
-          backgroundColor: AppColor.PRIMARY_OPACITY,
+          backgroundColor: AppColor.BLUE.withOpacity(0.5),
           widget: Icon(
             Icons.qr_code_rounded,
             color: AppColor.WHITE,
@@ -58,7 +58,9 @@ class _HomeScreenState extends State<HomeScreen> {
               text: 'មិនមានធៀប',
               backgroundColor: AppColor.GREEN_OPACITY,
               icon: AppIcon.card(),
-              onTap: () {},
+              onTap: () {
+                GoNavigate.pushNamed('/insert-name');
+              },
             ),
             SizedBox(height: 12.h),
             AppButton.longButton(

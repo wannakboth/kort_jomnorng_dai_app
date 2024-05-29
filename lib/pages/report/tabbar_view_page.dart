@@ -13,10 +13,11 @@ class TabBarViewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return ListView(
       children: [
         total(),
         listItem(),
+        const SizedBox(height: 16),
       ],
     );
   }
@@ -35,33 +36,45 @@ class TabBarViewPage extends StatelessWidget {
             strokeColor: Colors.transparent,
           ),
           page == 'ទាំងអស់'
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    StrokeText(
-                      text: '${FormatNumber.formatNumber(100023445508896)} រៀល',
-                      size: 9.sp,
-                      textColor: AppColor.BLUE,
-                    ),
-                    const SizedBox(height: 4),
-                    StrokeText(
-                      text: '${FormatNumber.formatNumber(500087)} ដុល្លារ',
-                      size: 9.sp,
-                      textColor: AppColor.RED,
-                    ),
-                  ],
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      StrokeText(
+                        text:
+                            '${FormatNumber.formatNumber(100023445508896)} រៀល',
+                        size: 9.sp,
+                        textColor: AppColor.BLUE,
+                      ),
+                      const SizedBox(height: 4),
+                      StrokeText(
+                        text: '${FormatNumber.formatNumber(500087)} ដុល្លារ',
+                        size: 9.sp,
+                        textColor: AppColor.RED,
+                      ),
+                    ],
+                  ),
                 )
               : page == 'រៀល'
-                  ? StrokeText(
-                      text: '${FormatNumber.formatNumber(100023445508896)} រៀល',
-                      size: 9.sp,
-                      textColor: AppColor.BLUE,
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: StrokeText(
+                        text:
+                            '${FormatNumber.formatNumber(100023445508896)} រៀល',
+                        size: 9.sp,
+                        textColor: AppColor.BLUE,
+                      ),
                     )
                   : page == 'ដុល្លារ'
-                      ? StrokeText(
-                          text: '${FormatNumber.formatNumber(500087)} ដុល្លារ',
-                          size: 9.sp,
-                          textColor: AppColor.RED,
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: StrokeText(
+                            text:
+                                '${FormatNumber.formatNumber(500087)} ដុល្លារ',
+                            size: 9.sp,
+                            textColor: AppColor.RED,
+                          ),
                         )
                       : Container(),
         ],
@@ -72,7 +85,8 @@ class TabBarViewPage extends StatelessWidget {
   listItem() {
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: 10,
+      itemCount: 20,
+      physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24),
       itemBuilder: (_, index) {
         return Container(
