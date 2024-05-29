@@ -27,4 +27,28 @@ class FormatNumber {
     String formattedNumber = formatWithCommas(number);
     return formatNumberToKhmer(formattedNumber);
   }
+
+  static formatDollar(String value) {
+    if (value.isEmpty || value == '0') return formatNumberToKhmer('0.00');
+
+    value = value.replaceAll(',', '');
+
+    double number = double.tryParse(value) ?? 0;
+
+    final format = NumberFormat('#,##0.00');
+    final formatter = format.format(number);
+    return formatNumberToKhmer(formatter);
+  }
+
+  static formatRiel(String value) {
+    if (value.isEmpty || value == '0') return formatNumberToKhmer('000​');
+
+    final double parsedValue = double.tryParse(value.replaceAll(',', '')) ?? 0;
+
+    final double shiftedValue = parsedValue * 100;
+
+    final format = NumberFormat('#,###');
+    final formatter = format.format(shiftedValue);
+    return formatNumberToKhmer(formatter);
+  }
 }

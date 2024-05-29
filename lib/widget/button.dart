@@ -17,17 +17,22 @@ class AppButton {
     Color? iconColor,
     Color? borderColor,
     Color? shadowColor,
+    double? marginHor,
+    double? paddingVer,
+    double? paddingHor,
+    double? radius,
+    BoxBorder? border,
     required Function() onTap,
   }) {
     return GestureDetector(
       onTap: () => onTap.call(),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        margin: EdgeInsets.symmetric(horizontal: 32.sp),
+        padding: EdgeInsets.symmetric(vertical: paddingVer ?? 8, horizontal: paddingHor ?? 16),
+        margin: EdgeInsets.symmetric(horizontal: marginHor ?? 32.sp),
         decoration: BoxDecoration(
           color: backgroundColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColor.WHITE_60),
+          borderRadius: BorderRadius.circular(radius ?? 12),
+          border: border ?? Border.all(color: AppColor.WHITE_60),
           boxShadow: [
             BoxShadow(
               color: AppColor.SHADOW,
