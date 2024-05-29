@@ -131,6 +131,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.19.0"
+  khmer_chhankitek:
+    dependency: "direct main"
+    description:
+      name: khmer_chhankitek
+      sha256: fbf401761412ca525cffc3aec5b79096df456a6d91d06549016716a411f7686d
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4"
   khmer_fonts:
     dependency: "direct main"
     description:

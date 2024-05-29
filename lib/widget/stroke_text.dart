@@ -13,6 +13,7 @@ class StrokeText extends StatelessWidget {
     this.strokeColor,
     required this.textColor,
     this.fontFamily,
+    this.textAlign,
   });
 
   final String text;
@@ -21,6 +22,7 @@ class StrokeText extends StatelessWidget {
   final Color? strokeColor;
   final Color textColor;
   final String? fontFamily;
+  final TextAlign? textAlign;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +30,7 @@ class StrokeText extends StatelessWidget {
       children: [
         Text(
           text,
+          textAlign: textAlign ?? TextAlign.start,
           style: TextStyle(
             fontFamily: fontFamily ?? KhmerFonts.dangrek,
             fontSize: (size ?? 14).sp,
@@ -40,6 +43,7 @@ class StrokeText extends StatelessWidget {
         ),
         Text(
           text,
+          textAlign: textAlign ?? TextAlign.start,
           style: TextStyle(
             fontFamily: fontFamily ?? KhmerFonts.dangrek,
             fontSize: (size ?? 14).sp,

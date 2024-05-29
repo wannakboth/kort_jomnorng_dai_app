@@ -160,7 +160,7 @@ class AppButton {
                 text,
                 style: TextStyle(
                   color: textColor ?? AppColor.WHITE,
-                  fontSize: (textSize ?? 18).sp,
+                  fontSize: (textSize ?? 16).sp,
                   package: 'khmer_fonts',
                   fontFamily: fontFamily ?? KhmerFonts.fasthand,
                 ),

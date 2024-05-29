@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:kort_jomnorng_dai_app/widget/color.dart';
 
 import '../../widget/app_widget.dart';
 import '../../widget/background.dart';
 import '../../widget/button.dart';
+import '../../widget/color.dart';
+import '../../widget/format_khmer_date.dart';
 import '../../widget/go_navigate.dart';
 import '../../widget/icon.dart';
 import '../../widget/stroke_text.dart';
@@ -48,9 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
             color: AppColor.WHITE,
             size: 56.sp,
           ),
-          onTap: () {
-            GoNavigate.pushNamed('/report');
-          },
+          onTap: () {},
         ),
         Column(
           children: [
@@ -67,7 +66,9 @@ class _HomeScreenState extends State<HomeScreen> {
               text: 'មើលរបាយការណ៍',
               icon: AppIcon.report(),
               backgroundColor: AppColor.RED_OPACITY,
-              onTap: () {},
+              onTap: () {
+                GoNavigate.pushNamed('/report');
+              },
             ),
           ],
         ),
@@ -83,8 +84,9 @@ class _HomeScreenState extends State<HomeScreen> {
       alignment: Alignment.center,
       margin: const EdgeInsets.only(top: 12),
       child: StrokeText(
-        text: '០១ មករា ២០២៥',
-        size: 14,
+        text: formatKhmerDate(),
+        size: 10.sp,
+        textAlign: TextAlign.center,
         textColor: AppColor.BLUE,
         strokeColor: AppColor.WHITE_70,
       ),

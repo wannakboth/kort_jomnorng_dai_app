@@ -9,10 +9,9 @@ import '../../widget/button.dart';
 import '../../widget/color.dart';
 import '../../widget/dismiss_keyboad.dart';
 import '../../widget/icon.dart';
+import '../../widget/list_array.dart';
 import '../../widget/stroke_text.dart';
-import 'tab_all.dart';
-import 'tab_dollar.dart';
-import 'tab_riel.dart';
+import 'tabbar_view_page.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
@@ -28,12 +27,6 @@ class _ReportScreenState extends State<ReportScreen>
 
   final searchFocusNode = FocusNode();
   final searchController = TextEditingController();
-
-  final List<String> _pageOptions = [
-    'ទាំងអស់',
-    'រៀល',
-    'ដុល្លារ',
-  ];
 
   @override
   void initState() {
@@ -86,9 +79,9 @@ class _ReportScreenState extends State<ReportScreen>
           child: TabBarView(
             controller: _tabController,
             children: [
-              TabAll(),
-              TabRiel(),
-              TabDollar(),
+              TabBarViewPage(page: reportTabBar[0]),
+              TabBarViewPage(page: reportTabBar[1]),
+              TabBarViewPage(page: reportTabBar[2]),
             ],
           ),
         ),
@@ -125,7 +118,7 @@ class _ReportScreenState extends State<ReportScreen>
           Tab(
             child: AppButton.smallButton(
               context,
-              text: _pageOptions[0],
+              text: reportTabBar[0],
               icon: AppIcon.money(width: 0, height: 0),
               space: 0,
               horizontal: 22,
@@ -150,7 +143,7 @@ class _ReportScreenState extends State<ReportScreen>
           Tab(
             child: AppButton.smallButton(
               context,
-              text: _pageOptions[1],
+              text: reportTabBar[1],
               icon: AppIcon.riel(),
               backgroundColor: AppColor.PRIMARY_OPACITY,
               borderColor:
@@ -173,7 +166,7 @@ class _ReportScreenState extends State<ReportScreen>
           Tab(
             child: AppButton.smallButton(
               context,
-              text: _pageOptions[2],
+              text: reportTabBar[2],
               icon: AppIcon.dollar(),
               backgroundColor: AppColor.RED_OPACITY,
               borderColor:
@@ -262,7 +255,7 @@ class _ReportScreenState extends State<ReportScreen>
                     borderRadius: BorderRadius.circular(16),
                   ),
                   filled: true,
-                  fillColor: AppColor.BLUE_OPACITY,
+                  fillColor: AppColor.BLUE_OPACITY_40,
                   prefixIcon: Icon(
                     CupertinoIcons.search,
                     color: AppColor.WHITE,
