@@ -49,7 +49,10 @@ class _HomeScreenState extends State<HomeScreen> {
             color: AppColor.WHITE,
             size: 56.sp,
           ),
-          onTap: () {},
+          onTap: () {
+            GoNavigate.pushNamed('/scan-qr');
+            print('object');
+          },
         ),
         Column(
           children: [
