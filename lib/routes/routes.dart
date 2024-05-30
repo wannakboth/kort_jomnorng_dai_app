@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../insert_name/insert_name.dart';
+import '../pages/insert_name/insert_name.dart';
 import '../pages/home/home_screen.dart';
 import '../pages/report/report_screen.dart';
 

@@ -3,11 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:khmer_fonts/khmer_fonts.dart';
 import 'package:kort_jomnorng_dai_app/widget/button.dart';
 
-import '../widget/background.dart';
-import '../widget/color.dart';
-import '../widget/dismiss_keyboad.dart';
-import '../widget/format_number.dart';
-import '../widget/icon.dart';
+import '../../widget/background.dart';
+import '../../widget/color.dart';
+import '../../widget/dismiss_keyboad.dart';
+import '../../widget/format_number.dart';
+import '../../widget/icon.dart';
 
 class InsertName extends StatefulWidget {
   const InsertName({super.key});
