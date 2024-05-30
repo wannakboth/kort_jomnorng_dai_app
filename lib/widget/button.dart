@@ -27,7 +27,8 @@ class AppButton {
     return GestureDetector(
       onTap: () => onTap.call(),
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: paddingVer ?? 8, horizontal: paddingHor ?? 16),
+        padding: EdgeInsets.symmetric(
+            vertical: paddingVer ?? 8, horizontal: paddingHor ?? 16),
         margin: EdgeInsets.symmetric(horizontal: marginHor ?? 32.sp),
         decoration: BoxDecoration(
           color: backgroundColor,

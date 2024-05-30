@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:khmer_fonts/khmer_fonts.dart';
@@ -5,6 +7,7 @@ import 'package:khmer_fonts/khmer_fonts.dart';
 import 'button.dart';
 import 'color.dart';
 import 'format_number.dart';
+import 'go_navigate.dart';
 import 'icon.dart';
 
 class InputNumMonitor extends StatefulWidget {
@@ -265,7 +268,12 @@ class _InputNumMonitorState extends State<InputNumMonitor> {
       paddingVer: 24,
       radius: 0,
       border: Border(top: BorderSide(color: AppColor.WHITE_60, width: 1.5)),
-      onTap: amountValue == '0' ? () {} : () {},
+      onTap: amountValue == '0'
+          ? () {}
+          : () {
+              GoNavigate.pushReplacementNamed('/home');
+              log('send', name: 'Confirm');
+            },
     );
   }
 }
