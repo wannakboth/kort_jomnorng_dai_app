@@ -17,13 +17,14 @@ class Background extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.LIGHTBLUE,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Opacity(
             opacity: 0.4,
             child: Image.asset(
               height: MediaQuery.of(context).size.height,
-              'assets/background/app_background.png',
+              'assets/background/app_background_medium.jpeg',
               fit: BoxFit.fitHeight,
             ),
           ),

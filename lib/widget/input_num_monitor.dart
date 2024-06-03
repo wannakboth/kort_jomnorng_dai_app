@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:khmer_fonts/khmer_fonts.dart';
@@ -7,38 +5,19 @@ import 'package:khmer_fonts/khmer_fonts.dart';
 import 'button.dart';
 import 'color.dart';
 import 'format_number.dart';
-import 'go_navigate.dart';
 import 'icon.dart';
 
-class InputNumMonitor extends StatefulWidget {
-  const InputNumMonitor({super.key, required this.name});
-
-  final Widget name;
-
-  @override
-  State<InputNumMonitor> createState() => _InputNumMonitorState();
-}
-
-class _InputNumMonitorState extends State<InputNumMonitor> {
-  String amountValue = "0";
-  String currency = '';
-
-  @override
-  void initState() {
-    super.initState();
-    amountValue = "0";
-    currency = 'រៀល';
-  }
-
-  @override
-  void dispose() {
-    amountValue = "0";
-    currency = 'រៀល';
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+class InputMonitor {
+  static monitor(
+    BuildContext context, {
+    required Widget name,
+    required amountValue,
+    required currency,
+    required Function(String val) stateAmount,
+    required Function() stateRiel,
+    required Function() stateDollar,
+    required Function() stateConfirm,
+  }) {
     return Column(
       children: [
         Expanded(
@@ -46,9 +25,18 @@ class _InputNumMonitorState extends State<InputNumMonitor> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widget.name,
-              chooseCurrency(),
-              amount(),
+              name,
+              chooseCurrency(
+                context,
+                amountValue: amountValue,
+                currency: currency,
+                stateRiel: () => stateRiel,
+                stateDollar: () => stateDollar,
+              ),
+              amount(
+                amountValue: amountValue,
+                currency: currency,
+              ),
             ],
           ),
         ),
@@ -56,19 +44,26 @@ class _InputNumMonitorState extends State<InputNumMonitor> {
           flex: 2,
           child: numberKeyboard(
             value: amountValue,
-            callback: (val) {
-              setState(() {
-                amountValue = val;
-              });
-            },
+            callback: (val) => stateAmount(val).call(),
           ),
         ),
-        confirmButton(),
+        confirmButton(
+          context,
+          amountValue: amountValue,
+          currency: currency,
+          onSubmit: () => stateConfirm,
+        ),
       ],
     );
   }
 
-  chooseCurrency() {
+  static chooseCurrency(
+    BuildContext context, {
+    required amountValue,
+    required currency,
+    required Function() stateRiel,
+    required Function() stateDollar,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -86,9 +81,10 @@ class _InputNumMonitorState extends State<InputNumMonitor> {
             ),
           ],
           onTap: () {
-            setState(() {
-              currency = 'រៀល';
-            });
+            stateRiel().call();
+            // setState(() {
+            //   widget.currency = 'រៀល';
+            // });
           },
         ),
         const SizedBox(width: 12),
@@ -107,19 +103,23 @@ class _InputNumMonitorState extends State<InputNumMonitor> {
             ),
           ],
           onTap: () {
-            setState(() {
-              currency = 'ដុល្លារ';
-            });
+            stateDollar().call();
+            // setState(() {
+            //   widget.currency = 'ដុល្លារ';
+            // });
           },
         ),
       ],
     );
   }
 
-  amount() {
+  static amount({
+    required amountValue,
+    required currency,
+  }) {
     return Center(
       child: Text(
-        '${FormatNumber.formatCurrency(amountValue, currency)} ${currency}',
+        '${FormatNumber.formatCurrency(amountValue, currency)} $currency',
         style: TextStyle(
           color: AppColor.WHITE,
           fontSize: 42,
@@ -131,61 +131,61 @@ class _InputNumMonitorState extends State<InputNumMonitor> {
     );
   }
 
-  List vrKeyboard = [
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    '.',
-    '0',
-    '<',
-  ];
+  static numberKeyboard({
+    required value,
+    required Function(dynamic val) callback,
+  }) {
+    List vrKeyboard = [
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      '.',
+      '0',
+      '<',
+    ];
 
-  calculate(String input, String value) {
-    if (!value.contains('.') && input != '.') {
-      if ((value.length >= 8) && input != '<') {
+    calculate(input, value) {
+      if (!value.contains('.') && input != '.') {
+        if ((value.length >= 8) && input != '<') {
+          return value;
+        }
+      }
+
+      if (input == '.' && (value.contains('.'))) return value;
+
+      if (input == '<' && value.length == 1) {
+        value = '0';
         return value;
       }
+      if (input == '<' && value.length > 1) {
+        value = value.substring(0, value.length - 1);
+        return value;
+      }
+      if (input == '0' && value == '0') return value;
+      if (input == '.' && value == '0') {
+        value += input;
+        return value;
+      }
+      if (value.contains('.') && value.indexOf('.') == value.length - 3) {
+        return value;
+      }
+      if (input != '<' && value == '0') {
+        value = input;
+        return value;
+      }
+      if (input != '<' && value != '0') {
+        value += input;
+        return value;
+      }
+      return value;
     }
 
-    if (input == '.' && (value.contains('.'))) return value;
-
-    if (input == '<' && value.length == 1) {
-      value = '0';
-      return value;
-    }
-    if (input == '<' && value.length > 1) {
-      value = value.substring(0, value.length - 1);
-      return value;
-    }
-    if (input == '0' && value == '0') return value;
-    if (input == '.' && value == '0') {
-      value += input;
-      return value;
-    }
-    if (value.contains('.') && value.indexOf('.') == value.length - 3) {
-      return value;
-    }
-    if (input != '<' && value == '0') {
-      value = input;
-      return value;
-    }
-    if (input != '<' && value != '0') {
-      value += input;
-      return value;
-    }
-    return value;
-  }
-
-  numberKeyboard({
-    required String value,
-    required Function(String) callback,
-  }) {
     return Center(
       child: GridView.count(
         physics: const BouncingScrollPhysics(),
@@ -255,7 +255,12 @@ class _InputNumMonitorState extends State<InputNumMonitor> {
     );
   }
 
-  confirmButton() {
+  static confirmButton(
+    BuildContext context, {
+    required amountValue,
+    required currency,
+    required Function() onSubmit,
+  }) {
     return AppButton.longButton(
       context,
       text: amountValue == '0'
@@ -271,8 +276,7 @@ class _InputNumMonitorState extends State<InputNumMonitor> {
       onTap: amountValue == '0'
           ? () {}
           : () {
-              GoNavigate.pushReplacementNamed('/home');
-              log('send', name: 'Confirm');
+              onSubmit().call();
             },
     );
   }
