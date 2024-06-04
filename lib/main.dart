@@ -17,15 +17,15 @@ class MyApp extends StatelessWidget {
       designSize: const Size(360, 690),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (_ , child) {
+      builder: (_, child) {
         ScreenUtil.init(_);
-        return  MaterialApp(
+        return MaterialApp(
           debugShowCheckedModeBanner: false,
           navigatorKey: GoNavigate.navigatorKey,
           initialRoute: '/home',
-        routes: routes,
+          routes: routes,
         );
-      }
+      },
     );
   }
 }
