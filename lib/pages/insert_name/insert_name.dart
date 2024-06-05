@@ -92,35 +92,18 @@ class _InsertNameState extends State<InsertName> {
       backgroundColor: Colors.transparent,
       leading: BackButton(
         color: AppColor.WHITE,
+        onPressed: () => GoNavigate.goBack,
       ),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 24),
-          child: AppButton.smallButton(
-            context,
-            text: 'បញ្ចូល',
-            textSize: 10,
-            widget: Icon(
-              Icons.add_rounded,
-              color: AppColor.WHITE,
-              size: 18,
-            ),
-            backgroundColor: AppColor.BLACK_OPACITY,
-            borderColor: AppColor.WHITE,
-            onTap: () {
-              //
-            },
-          ),
-        ),
-      ],
     );
   }
 
   nameItem() {
+    final args = ModalRoute.of(context)!.settings.arguments as Map;
+
     return Padding(
       padding: const EdgeInsets.only(top: 24),
       child: StrokeText(
-        text: name == '' || name.isEmpty ? 'បញ្ចូលឈ្មោះភ្ញៀវ' : name,
+        text: args['name'],
         textColor: AppColor.BLUE,
         size: 26,
       ),
