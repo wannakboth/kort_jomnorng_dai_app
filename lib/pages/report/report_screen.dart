@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:khmer_fonts/khmer_fonts.dart';
 
+import '../../service/controller.dart';
+import '../../service/model.dart';
 import '../../widget/app_widget.dart';
 import '../../widget/background.dart';
 import '../../widget/button.dart';
@@ -27,6 +29,9 @@ class _ReportScreenState extends State<ReportScreen>
 
   final searchFocusNode = FocusNode();
   final searchController = TextEditingController();
+
+  late Future<ApiResponse> futureResponse;
+  final ApiController apiController = ApiController();
 
   @override
   void initState() {

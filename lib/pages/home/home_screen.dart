@@ -62,7 +62,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           onTap: () {
             GoNavigate.pushNamed('/scan-qr');
-            print('object');
           },
         ),
         Column(

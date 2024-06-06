@@ -35,11 +35,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             IconButton(
-              icon: Icon(Icons.switch_camera),
+              icon: const Icon(Icons.switch_camera),
               onPressed: () => cameraController.switchCamera(),
             ),
             IconButton(
-              icon: Icon(Icons.flash_on),
+              icon: const Icon(Icons.flash_on),
               onPressed: () => cameraController.toggleTorch(),
             ),
           ],
@@ -49,11 +49,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
           children: [
             ElevatedButton(
               onPressed: () => cameraController.stop(),
-              child: Text('Stop Scanning'),
+              child: const Text('Stop Scanning'),
             ),
             ElevatedButton(
               onPressed: () => cameraController.start(),
-              child: Text('Start Scanning'),
+              child: const Text('Start Scanning'),
             ),
           ],
         ),
