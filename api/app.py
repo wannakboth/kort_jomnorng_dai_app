@@ -68,6 +68,8 @@ def search_currency():
     req_data = request.get_json()
     search = req_data.get('search', '').strip()
     currency = req_data.get('currency', '').strip().lower()
+    page = req_data.get('page', 1)
+    size = req_data.get('size', 10)
 
     if not currency:
         return jsonify({
@@ -84,6 +86,9 @@ def search_currency():
         query = query.filter(Currency.name.contains(search))
 
     items = query.all()
+    
+    pagination = query.paginate(page=page, per_page=size, error_out=False)
+    items = pagination.items
 
     for item in items:
         item_data = {'id': str(item.id), 'name': item.name}

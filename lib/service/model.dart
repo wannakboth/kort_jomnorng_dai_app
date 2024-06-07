@@ -26,11 +26,11 @@ class Item {
 }
 
 class Data {
-  final List<Item> items;
-  final String totalDollar;
-  final String totalRiel;
+  final List<Item>? items;
+  final String? totalDollar;
+  final String? totalRiel;
 
-  Data({required this.items, required this.totalDollar, required this.totalRiel});
+  Data({ this.items,  this.totalDollar,  this.totalRiel});
 
   factory Data.fromJson(Map<String, dynamic> json) {
     var list = json['items'] as List;
@@ -45,7 +45,7 @@ class Data {
 
   Map<String, dynamic> toJson() {
     return {
-      'items': items.map((item) => item.toJson()).toList(),
+      'items': items?.map((item) => item.toJson()).toList(),
       'totalDollar': totalDollar,
       'totalRiel': totalRiel,
     };
@@ -53,11 +53,11 @@ class Data {
 }
 
 class ApiResponse {
-  final Data data;
-  final int errorCode;
-  final String status;
+  final Data? data;
+  final int? errorCode;
+  final String? status;
 
-  ApiResponse({required this.data, required this.errorCode, required this.status});
+  ApiResponse({ this.data,  this.errorCode,  this.status});
 
   factory ApiResponse.fromJson(Map<String, dynamic> json) {
     return ApiResponse(
@@ -69,7 +69,7 @@ class ApiResponse {
 
   Map<String, dynamic> toJson() {
     return {
-      'data': data.toJson(),
+      'data': data?.toJson(),
       'errorCode': errorCode,
       'status': status,
     };

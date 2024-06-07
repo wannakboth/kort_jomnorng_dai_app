@@ -6,13 +6,20 @@ import '../widget/url.dart';
 import 'model.dart';
 
 class ApiController {
-  Future<ApiResponse> fetchData(String search, String currency) async {
+  Future<ApiResponse> fetchData(
+    String search,
+    String currency,
+    int page,
+    int size,
+  ) async {
     final response = await http.post(
       Uri.parse(searchUrl),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'search': search,
         'currency': currency,
+        'page': page,
+        'size': size,
       }),
     );
 

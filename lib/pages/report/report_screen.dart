@@ -59,12 +59,10 @@ class _ReportScreenState extends State<ReportScreen>
   }
 
   Future<ApiResponse> fetchDataForTab(int index) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      return apiController.fetchData(
-        searchController.text,
-        reportTabBar[index],
-      );
-    });
+    return apiController.fetchData(
+      searchController.text,
+      reportTabBar[index],
+    );
   }
 
   @override
@@ -109,14 +107,17 @@ class _ReportScreenState extends State<ReportScreen>
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
-              child: CircularProgressIndicator(
-            color: AppColor.WHITE,
-          ));
+            child: CircularProgressIndicator(
+              color: AppColor.WHITE,
+            ),
+          );
+        } else if (snapshot.data!.data == null || snapshot.data == null) {
+          return const Center(child: Text('No data found'));
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (snapshot.hasData) {
           final data = snapshot.data!.data;
-          final item = data.items;
+          final item = data?.items;
 
           return TabBarViewPage(
             page: reportTabBar[index],
