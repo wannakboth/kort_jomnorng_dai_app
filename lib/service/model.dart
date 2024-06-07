@@ -1,17 +1,17 @@
 class Item {
   final String id;
   final String name;
-  final String? riel;
-  final String? dollar;
+  final String? amount;
+  final String? currency;
 
-  Item({required this.id, required this.name, this.riel, this.dollar});
+  Item({required this.id, required this.name, this.amount, this.currency});
 
   factory Item.fromJson(Map<String, dynamic> json) {
     return Item(
       id: json['id'],
       name: json['name'],
-      riel: json['riel'],
-      dollar: json['dollar'],
+      amount: json['amount'],
+      currency: json['currency'],
     );
   }
 
@@ -19,8 +19,8 @@ class Item {
     return {
       'id': id,
       'name': name,
-      'riel': riel,
-      'dollar': dollar,
+      'amount': amount,
+      'currency': currency,
     };
   }
 }

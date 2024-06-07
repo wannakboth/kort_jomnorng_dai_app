@@ -1,3 +1,5 @@
+import netifaces
+
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
@@ -27,8 +29,8 @@ with app.app_context():
 def create_currency():
     req_data = request.get_json()
     name = req_data.get('name', '').strip()
-    riel = req_data.get('riel', 0)
-    dollar = req_data.get('dollar', 0.0)
+    amount = req_data.get('amount', 0)
+    currency = req_data.get('currency', '').strip().lower()
 
     if not name:
         return jsonify({
@@ -36,7 +38,17 @@ def create_currency():
             'errorCode': 400,
         }), 400
 
-    new_currency = Currency(name=name, riel=riel, dollar=dollar)
+    if currency not in ['dollar', 'riel', 'ដុល្លារ', 'រៀល']:
+        return jsonify({
+            'status': 'Invalid currency',
+            'errorCode': 400,
+        }), 400
+
+    if currency in ['dollar', 'ដុល្លារ']:
+        new_currency = Currency(name=name, riel=None, dollar=amount)
+    elif currency in ['riel', 'រៀល']:
+        new_currency = Currency(name=name, riel=amount, dollar=None)
+
     db.session.add(new_currency)
     db.session.commit()
 
@@ -46,8 +58,8 @@ def create_currency():
         'data': {
             'id': str(new_currency.id),
             'name': new_currency.name,
-            'riel': str(new_currency.riel) if new_currency.riel else "",
-            'dollar': f"{new_currency.dollar:.2f}" if new_currency.dollar else ""
+            'amount': str(amount),
+            'currency': 'dollar' if new_currency.dollar else 'riel'
         }
     }), 201
 
@@ -55,7 +67,7 @@ def create_currency():
 def search_currency():
     req_data = request.get_json()
     search = req_data.get('search', '').strip()
-    currency = req_data.get('currency', '').lower()
+    currency = req_data.get('currency', '').strip().lower()
 
     if not currency:
         return jsonify({
@@ -75,21 +87,25 @@ def search_currency():
 
     for item in items:
         item_data = {'id': str(item.id), 'name': item.name}
-        if currency == 'all':
+        if currency in ['all', 'ទាំងអស់']:
             if item.riel:
-                item_data['riel'] = str(item.riel)
+                item_data['amount'] = str(item.riel)
+                item_data['currency'] = 'រៀល'
                 total_riel += item.riel
-            if item.dollar:
-                item_data['dollar'] = f"{item.dollar:.2f}"
-                total_dollar += item.dollar
-            if 'riel' in item_data or 'dollar' in item_data:
                 filtered_items.append(item_data)
-        elif currency == 'riel' and item.riel:
-            item_data['riel'] = str(item.riel)
+            if item.dollar:
+                item_data['amount'] = f"{item.dollar:.2f}"
+                item_data['currency'] = 'ដុល្លារ'
+                total_dollar += item.dollar
+                filtered_items.append(item_data)
+        elif currency in ['riel', 'រៀល'] and item.riel:
+            item_data['amount'] = str(item.riel)
+            item_data['currency'] = 'រៀល'
             filtered_items.append(item_data)
             total_riel += item.riel
-        elif currency == 'dollar' and item.dollar:
-            item_data['dollar'] = f"{item.dollar:.2f}"
+        elif currency in ['dollar', 'ដុល្លារ'] and item.dollar:
+            item_data['amount'] = f"{item.dollar:.2f}"
+            item_data['currency'] = 'ដុល្លារ'
             filtered_items.append(item_data)
             total_dollar += item.dollar
 
@@ -129,6 +145,21 @@ def internal_error(error):
         'status': 'Internal Server Error',
         'errorCode': 500
     }), 500
+    
+def get_local_ip():
+    # Define common interface names for Ethernet and Wi-Fi on macOS
+    interface_names = ['en0', 'en1']  # Typically 'en0' for Wi-Fi and 'en1' for Ethernet
+    for interface in interface_names:
+        try:
+            addresses = netifaces.ifaddresses(interface)
+            if netifaces.AF_INET in addresses:
+                # Return the first found IP address
+                ip = addresses[netifaces.AF_INET][0]['addr']
+                return ip
+        except (KeyError, ValueError):
+            continue
+    return '127.0.0.1'  # Default to localhost if no IP found
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    local_ip = get_local_ip()
+    app.run(host=local_ip, port=5000, debug=True, use_reloader=True)

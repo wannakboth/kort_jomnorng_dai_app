@@ -40,7 +40,7 @@ class FormatNumber {
     return input.split('').map((char) => khmerToArabic[char] ?? char).join('');
   }
 
-  static formatNumber(int number) {
+  static formatNumber(dynamic number) {
     String formattedNumber = formatWithCommas(number);
     return formatNumberToKhmer(formattedNumber);
   }
@@ -78,7 +78,7 @@ class FormatNumber {
     }
     if (currency == 'ដុល្លារ') {
       final format = NumberFormat('#.00');
-      final formatter = format.format(int.parse(value));
+      final formatter = format.format(double.parse(value));
       return formatNumberToNormal(formatter);
     }
   }

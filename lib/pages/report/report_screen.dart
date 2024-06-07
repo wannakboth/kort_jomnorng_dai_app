@@ -58,6 +58,15 @@ class _ReportScreenState extends State<ReportScreen>
     super.dispose();
   }
 
+  Future<ApiResponse> fetchDataForTab(int index) {
+    return Future.delayed(const Duration(seconds: 1), () {
+      return apiController.fetchData(
+        searchController.text,
+        reportTabBar[index],
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Background(
@@ -84,13 +93,40 @@ class _ReportScreenState extends State<ReportScreen>
           child: TabBarView(
             controller: _tabController,
             children: [
-              TabBarViewPage(page: reportTabBar[0]),
-              TabBarViewPage(page: reportTabBar[1]),
-              TabBarViewPage(page: reportTabBar[2]),
+              buildTabContent(0),
+              buildTabContent(1),
+              buildTabContent(2),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget buildTabContent(int index) {
+    return FutureBuilder<ApiResponse>(
+      future: fetchDataForTab(index),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+              child: CircularProgressIndicator(
+            color: AppColor.WHITE,
+          ));
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (snapshot.hasData) {
+          final data = snapshot.data!.data;
+          final item = data.items;
+
+          return TabBarViewPage(
+            page: reportTabBar[index],
+            data: data,
+            items: item,
+          );
+        } else {
+          return const Center(child: Text('No data found'));
+        }
+      },
     );
   }
 

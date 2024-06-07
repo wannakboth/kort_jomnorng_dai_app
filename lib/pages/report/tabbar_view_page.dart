@@ -7,9 +7,16 @@ import '../../widget/color.dart';
 import '../../widget/format_number.dart';
 
 class TabBarViewPage extends StatelessWidget {
-  const TabBarViewPage({super.key, required this.page});
+  const TabBarViewPage({
+    super.key,
+    required this.page,
+    required this.items,
+    required this.data,
+  });
 
   final String page;
+  final dynamic data;
+  final dynamic items;
 
   @override
   Widget build(BuildContext context) {
@@ -43,13 +50,14 @@ class TabBarViewPage extends StatelessWidget {
                     children: [
                       StrokeText(
                         text:
-                            '${FormatNumber.formatNumber(100023445508896)} រៀល',
+                            '${FormatNumber.formatCurrency('${data.totalRiel}', 'រៀល')} រៀល',
                         size: 9.sp,
                         textColor: AppColor.BLUE,
                       ),
                       const SizedBox(height: 4),
                       StrokeText(
-                        text: '${FormatNumber.formatNumber(500087)} ដុល្លារ',
+                        text:
+                            '${FormatNumber.formatCurrency('${data.totalDollar}', 'ដុល្លារ')} ដុល្លារ',
                         size: 9.sp,
                         textColor: AppColor.RED,
                       ),
@@ -61,7 +69,7 @@ class TabBarViewPage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 6),
                       child: StrokeText(
                         text:
-                            '${FormatNumber.formatNumber(100023445508896)} រៀល',
+                            '${FormatNumber.formatCurrency('${data.totalRiel}', 'រៀល')} រៀល',
                         size: 9.sp,
                         textColor: AppColor.BLUE,
                       ),
@@ -71,7 +79,7 @@ class TabBarViewPage extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 6),
                           child: StrokeText(
                             text:
-                                '${FormatNumber.formatNumber(500087)} ដុល្លារ',
+                                '${FormatNumber.formatCurrency('${data.totalDollar}', 'ដុល្លារ')} ដុល្លារ',
                             size: 9.sp,
                             textColor: AppColor.RED,
                           ),
@@ -85,10 +93,12 @@ class TabBarViewPage extends StatelessWidget {
   listItem() {
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: 20,
+      itemCount: items.length,
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24),
       itemBuilder: (_, index) {
+        final item = items[index];
+
         return Container(
           margin: const EdgeInsets.only(top: 8),
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -96,7 +106,7 @@ class TabBarViewPage extends StatelessWidget {
             color: AppColor.WHITE_70,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: page == 'រៀល'
+              color: item.currency == 'រៀល'
                   ? AppColor.BLUE_OPACITY_70
                   : AppColor.RED_OPACITY,
             ),
@@ -105,18 +115,20 @@ class TabBarViewPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               StrokeText(
-                text: 'ឈ្មោះភ្ញៀវ',
-                size: 10.sp,
-                textColor: AppColor.BLACK,
+                text: item.name,
+                size: 12.sp,
+                textColor:
+                    item.currency == 'រៀល' ? AppColor.BLUE : AppColor.RED,
                 strokeColor: Colors.transparent,
               ),
               Text(
-                '${FormatNumber.formatNumber(10000)} រៀល',
+                '${FormatNumber.formatCurrency('${item.amount}', '${item.currency}')} ${item.currency}',
                 style: TextStyle(
-                  color: page == 'រៀល' ? AppColor.BLUE : AppColor.RED,
+                  color: item.currency == 'រៀល' ? AppColor.BLUE : AppColor.RED,
                   fontFamily: KhmerFonts.fasthand,
-                  fontSize: 11.sp,
+                  fontSize: 9.sp,
                   package: 'khmer_fonts',
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
