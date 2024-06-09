@@ -69,7 +69,7 @@ def search_currency():
     search = req_data.get('search', '').strip()
     currency = req_data.get('currency', '').strip().lower()
     page = req_data.get('page', 1)
-    size = req_data.get('size', 10)
+    size = req_data.get('size', 15)
 
     if not currency:
         return jsonify({
