@@ -81,38 +81,45 @@ def search_currency():
     total_riel = 0
     total_dollar = 0
 
+    # Define the base query
     query = Currency.query
     if search:
         query = query.filter(Currency.name.contains(search))
 
-    items = query.all()
-    
-    pagination = query.paginate(page=page, per_page=size, error_out=False)
-    items = pagination.items
-
-    for item in items:
-        item_data = {'id': str(item.id), 'name': item.name}
-        if currency in ['all', 'ទាំងអស់']:
-            if item.riel:
-                item_data['amount'] = str(item.riel)
-                item_data['currency'] = 'រៀល'
+    # Paginate based on the currency parameter
+    if currency in ['all', 'ទាំងអស់']:
+        pagination = query.paginate(page=page, per_page=size, error_out=False)
+        items = pagination.items
+        for item in items:
+            if item.riel is not None:
+                item_data = {'id': str(item.id), 'name': item.name, 'amount': str(item.riel), 'currency': 'រៀល'}
+                filtered_items.append(item_data)
                 total_riel += item.riel
+            if item.dollar is not None:
+                item_data = {'id': str(item.id), 'name': item.name, 'amount': f"{item.dollar:.2f}", 'currency': 'ដុល្លារ'}
                 filtered_items.append(item_data)
-            if item.dollar:
-                item_data['amount'] = f"{item.dollar:.2f}"
-                item_data['currency'] = 'ដុល្លារ'
                 total_dollar += item.dollar
-                filtered_items.append(item_data)
-        elif currency in ['riel', 'រៀល'] and item.riel:
-            item_data['amount'] = str(item.riel)
-            item_data['currency'] = 'រៀល'
+    elif currency in ['riel', 'រៀល']:
+        riel_query = query.filter(Currency.riel.isnot(None))
+        pagination = riel_query.paginate(page=page, per_page=size, error_out=False)
+        items = pagination.items
+        for item in items:
+            item_data = {'id': str(item.id), 'name': item.name, 'amount': str(item.riel), 'currency': 'រៀល'}
             filtered_items.append(item_data)
             total_riel += item.riel
-        elif currency in ['dollar', 'ដុល្លារ'] and item.dollar:
-            item_data['amount'] = f"{item.dollar:.2f}"
-            item_data['currency'] = 'ដុល្លារ'
+    elif currency in ['dollar', 'ដុល្លារ']:
+        dollar_query = query.filter(Currency.dollar.isnot(None))
+        pagination = dollar_query.paginate(page=page, per_page=size, error_out=False)
+        items = pagination.items
+        for item in items:
+            item_data = {'id': str(item.id), 'name': item.name, 'amount': f"{item.dollar:.2f}", 'currency': 'ដុល្លារ'}
             filtered_items.append(item_data)
             total_dollar += item.dollar
+    else:
+        return jsonify({
+            'status': 'Invalid currency parameter',
+            'errorCode': 400,
+        }), 400
 
     if not filtered_items:
         return jsonify({
@@ -129,6 +136,7 @@ def search_currency():
             'items': filtered_items
         }
     }), 200
+
 
 @app.errorhandler(400)
 def bad_request(error):
