@@ -1,10 +1,14 @@
 class Item {
   final String id;
   final String name;
-  final String? amount;
-  final String? currency;
+  final String amount;
+  final String currency;
 
-  Item({required this.id, required this.name, this.amount, this.currency});
+  Item(
+      {required this.id,
+      required this.name,
+      required this.amount,
+      required this.currency});
 
   factory Item.fromJson(Map<String, dynamic> json) {
     return Item(
@@ -26,18 +30,21 @@ class Item {
 }
 
 class Data {
-  final List<Item>? items;
-  final String? totalDollar;
-  final String? totalRiel;
+  final List<Item> items;
+  final String totalDollar;
+  final String totalRiel;
 
-  Data({ this.items,  this.totalDollar,  this.totalRiel});
+  Data(
+      {required this.items,
+      required this.totalDollar,
+      required this.totalRiel});
 
   factory Data.fromJson(Map<String, dynamic> json) {
-    var list = json['items'] as List;
-    List<Item> itemsList = list.map((i) => Item.fromJson(i)).toList();
+    var itemList = json['items'] as List;
+    List<Item> items = itemList.map((i) => Item.fromJson(i)).toList();
 
     return Data(
-      items: itemsList,
+      items: items,
       totalDollar: json['totalDollar'],
       totalRiel: json['totalRiel'],
     );
@@ -45,7 +52,7 @@ class Data {
 
   Map<String, dynamic> toJson() {
     return {
-      'items': items?.map((item) => item.toJson()).toList(),
+      'items': items.map((item) => item.toJson()).toList(),
       'totalDollar': totalDollar,
       'totalRiel': totalRiel,
     };
@@ -53,11 +60,12 @@ class Data {
 }
 
 class ApiResponse {
-  final Data? data;
-  final int? errorCode;
-  final String? status;
+  final Data data;
+  final int errorCode;
+  final String status;
 
-  ApiResponse({ this.data,  this.errorCode,  this.status});
+  ApiResponse(
+      {required this.data, required this.errorCode, required this.status});
 
   factory ApiResponse.fromJson(Map<String, dynamic> json) {
     return ApiResponse(
@@ -69,7 +77,7 @@ class ApiResponse {
 
   Map<String, dynamic> toJson() {
     return {
-      'data': data?.toJson(),
+      'data': data.toJson(),
       'errorCode': errorCode,
       'status': status,
     };

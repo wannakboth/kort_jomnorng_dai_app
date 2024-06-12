@@ -27,27 +27,89 @@ class _ReportScreenState extends State<ReportScreen>
   late TabController _tabController;
   int _selectedIndex = 0;
 
+  List<Item> items = [];
+  int currentPage = 1;
+  int totalItems = 0;
+  bool isLoading = false;
+  bool hasMore = true;
+
   final searchFocusNode = FocusNode();
   final searchController = TextEditingController();
 
-  late Future<ApiResponse> futureResponse;
+  late Future<ApiResponse> futureData;
   final ApiController apiController = ApiController();
+  String currentCurrency = 'all';
 
   @override
   void initState() {
-    _tabController = TabController(length: 3, vsync: this);
-    _tabController.addListener(() {
-      setState(() {
-        _selectedIndex = _tabController.index;
-      });
-    });
+    // _tabController = TabController(length: 3, vsync: this);
+    // _tabController.addListener(() {
+    //   setState(() {
+    //     _selectedIndex = _tabController.index;
+    //   });
+    // });
 
-    searchController.addListener(_onSearchChanged);
+    // futureData = apiController.fetchData();
+
+    // searchController.addListener(_onSearchChanged);
     super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(_onTabChanged);
+    fetchData();
   }
 
   _onSearchChanged() {
     setState(() {});
+  }
+
+  void _onTabChanged() {
+    if (_tabController.indexIsChanging) {
+      setState(() {
+        currentPage = 1;
+        items.clear();
+        hasMore = true;
+        if (_tabController.index == 0) {
+          currentCurrency = 'all';
+        } else if (_tabController.index == 1) {
+          currentCurrency = 'riel';
+        } else {
+          currentCurrency = 'dollar';
+        }
+        fetchData();
+      });
+    }
+  }
+
+  Future<void> fetchData() async {
+    if (isLoading || !hasMore) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      ApiResponse response = await apiController.fetchData(
+          currency: currentCurrency, page: currentPage, size: 15);
+      setState(() {
+        items.addAll(response.data.items);
+        totalItems = response.data.items.length;
+        currentPage++;
+        hasMore = response.data.items.length == 15;
+      });
+    } catch (e) {
+      print('Failed to load data: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<ApiResponse> fetchDataForTab(int index) {
+    return apiController.fetchData(
+      search: searchController.text,
+      currency: reportTabBar[index],
+    );
   }
 
   @override
@@ -55,27 +117,71 @@ class _ReportScreenState extends State<ReportScreen>
     searchController.removeListener(_onSearchChanged);
     searchController.dispose();
     searchFocusNode.dispose();
+    _tabController.dispose();
     super.dispose();
-  }
-
-  Future<ApiResponse> fetchDataForTab(int index) {
-    return apiController.fetchData(
-      searchController.text,
-      reportTabBar[index],
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Background(
-      widgets: DismissKeyboard(
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: buildAppBar(),
-          body: buildBody(),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Data Screen'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(text: 'All'),
+            Tab(text: 'Riel'),
+            Tab(text: 'Dollar'),
+          ],
         ),
       ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildListView(),
+          _buildListView(),
+          _buildListView(),
+        ],
+      ),
     );
+    // return Background(
+    //   widgets: DismissKeyboard(
+    //     child: Scaffold(
+    //       backgroundColor: Colors.transparent,
+    //       appBar: buildAppBar(),
+    //       body: buildBody(),
+    //     ),
+    //   ),
+    // );
+  }
+
+  Widget _buildListView() {
+    if (isLoading && items.isEmpty) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (ScrollNotification scrollInfo) {
+        if (!isLoading && hasMore && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+          fetchData();
+        }
+        return false;
+      },
+      child: ListView.builder(
+        itemCount: items.length + (isLoading ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == items.length) {
+            return Center(child: CircularProgressIndicator());
+          }
+          final item = items[index];
+          return ListTile(
+            title: Text(item.name),
+            subtitle: Text('${item.amount} ${item.currency}'),
+          );
+        },
+      ),
+    );
+  
   }
 
   buildBody() {
@@ -111,7 +217,7 @@ class _ReportScreenState extends State<ReportScreen>
               color: AppColor.WHITE,
             ),
           );
-        } else if (snapshot.data!.data == null || snapshot.data == null) {
+        } else if (snapshot.data?.data == null || snapshot.data == null) {
           return const Center(child: Text('No data found'));
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
