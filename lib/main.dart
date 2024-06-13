@@ -3,9 +3,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'routes/routes.dart';
 import 'widget/go_navigate.dart';
+import 'widget/url.dart';
 
 void main() {
+  _initialize();
   runApp(const MyApp());
+}
+
+Future<void> _initialize() async {
+  await initializeIpAddress(); // Ensure the IP address and URLs are set
 }
 
 class MyApp extends StatelessWidget {

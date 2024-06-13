@@ -25,6 +25,8 @@ class ReportScreen extends StatefulWidget {
 class _ReportScreenState extends State<ReportScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final searchController = TextEditingController();
+  final searchFocusNode = FocusNode();
 
   final ApiController apiController = ApiController();
 
@@ -44,16 +46,19 @@ class _ReportScreenState extends State<ReportScreen>
   bool rielHasMore = true;
   bool dollarHasMore = true;
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-    _tabController.addListener(_onTabChanged);
-    fetchData(currentCurrency: 'all');
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _tabController = TabController(length: 3, vsync: this);
+  //   _tabController.addListener(_onTabChanged);
+  //   fetchData(currentCurrency: 'all');
+  // }
 
   @override
   void dispose() {
+    searchController.removeListener(_onSearchChanged);
+    searchController.dispose();
+    searchFocusNode.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -76,7 +81,8 @@ class _ReportScreenState extends State<ReportScreen>
     }
   }
 
-  Future<void> fetchData({required String currentCurrency, bool reset = false}) async {
+  Future<void> fetchData(
+      {required String currentCurrency, bool reset = false}) async {
     if (isLoading(currentCurrency) || !hasMore(currentCurrency)) return;
 
     if (reset) {
@@ -91,7 +97,10 @@ class _ReportScreenState extends State<ReportScreen>
     });
 
     try {
-      ApiResponse response = await apiController.fetchData(currency: currentCurrency, page: currentPage(currentCurrency), size: 15);
+      ApiResponse response = await apiController.fetchData(
+          currency: currentCurrency,
+          page: currentPage(currentCurrency),
+          size: 15);
       setState(() {
         addItems(currentCurrency, response.data.items);
         incrementPage(currentCurrency);
@@ -242,27 +251,19 @@ class _ReportScreenState extends State<ReportScreen>
     }
   }
 
-  // @override
-  // void initState() {
-  //   // _tabController = TabController(length: 3, vsync: this);
-  //   // _tabController.addListener(() {
-  //   //   setState(() {
-  //   //     _selectedIndex = _tabController.index;
-  //   //   });
-  //   // });
+  @override
+  void initState() {
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(_onTabChanged);
+    fetchData(currentCurrency: 'all');
 
-  //   // futureData = apiController.fetchData();
+    searchController.addListener(_onSearchChanged);
+    super.initState();
+  }
 
-  //   // searchController.addListener(_onSearchChanged);
-  //   super.initState();
-  //   _tabController = TabController(length: 3, vsync: this);
-  //   _tabController.addListener(_onTabChanged);
-  //   fetchData();
-  // }
-
-  // _onSearchChanged() {
-  //   setState(() {});
-  // }
+  _onSearchChanged() {
+    setState(() {});
+  }
 
   // void _onTabChanged() {
   //   if (_tabController.indexIsChanging) {
@@ -366,7 +367,9 @@ class _ReportScreenState extends State<ReportScreen>
       onRefresh: () => fetchData(currentCurrency: currency, reset: true),
       child: NotificationListener<ScrollNotification>(
         onNotification: (ScrollNotification scrollInfo) {
-          if (!currentLoading && currentHasMore && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+          if (!currentLoading &&
+              currentHasMore &&
+              scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
             fetchData(currentCurrency: currency);
           }
           return false;
