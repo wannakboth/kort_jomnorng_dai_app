@@ -11,12 +11,18 @@ class TabBarViewPage extends StatelessWidget {
     super.key,
     required this.page,
     required this.items,
-    required this.data,
+    required this.totalRiel,
+    required this.totalDollar,
+    required this.hasMore,
+    // required this.data,
   });
 
   final String page;
-  final dynamic data;
+  // final dynamic data;
   final dynamic items;
+  final double totalRiel;
+  final double totalDollar;
+  final bool hasMore;
 
   @override
   Widget build(BuildContext context) {
@@ -50,14 +56,14 @@ class TabBarViewPage extends StatelessWidget {
                     children: [
                       StrokeText(
                         text:
-                            '${FormatNumber.formatCurrency('${data.totalRiel}', 'រៀល')} រៀល',
+                            '${FormatNumber.formatCurrency('$totalRiel', 'រៀល')} រៀល',
                         size: 9.sp,
                         textColor: AppColor.BLUE,
                       ),
                       const SizedBox(height: 4),
                       StrokeText(
                         text:
-                            '${FormatNumber.formatCurrency('${data.totalDollar}', 'ដុល្លារ')} ដុល្លារ',
+                            '${FormatNumber.formatCurrency('$totalDollar', 'ដុល្លារ')} ដុល្លារ',
                         size: 9.sp,
                         textColor: AppColor.RED,
                       ),
@@ -69,7 +75,7 @@ class TabBarViewPage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 6),
                       child: StrokeText(
                         text:
-                            '${FormatNumber.formatCurrency('${data.totalRiel}', 'រៀល')} រៀល',
+                            '${FormatNumber.formatCurrency('$totalRiel', 'រៀល')} រៀល',
                         size: 9.sp,
                         textColor: AppColor.BLUE,
                       ),
@@ -79,7 +85,7 @@ class TabBarViewPage extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 6),
                           child: StrokeText(
                             text:
-                                '${FormatNumber.formatCurrency('${data.totalDollar}', 'ដុល្លារ')} ដុល្លារ',
+                                '${FormatNumber.formatCurrency('$totalDollar', 'ដុល្លារ')} ដុល្លារ',
                             size: 9.sp,
                             textColor: AppColor.RED,
                           ),
@@ -93,12 +99,14 @@ class TabBarViewPage extends StatelessWidget {
   listItem() {
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: items.length,
+      itemCount: items.length + (hasMore ? 1 : 0),
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24),
       itemBuilder: (_, index) {
+        if (index == items.length) {
+          return Center(child: CircularProgressIndicator());
+        }
         final item = items[index];
-
         return Container(
           margin: const EdgeInsets.only(top: 8),
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),

@@ -46,6 +46,13 @@ class _ReportScreenState extends State<ReportScreen>
   bool rielHasMore = true;
   bool dollarHasMore = true;
 
+  double totalDollar = 0.0;
+  double totalRiel = 0.0;
+  List<Item> allData = [];
+  List<Item> rielData = [];
+  List<Item> dollarData = [];
+  int _selectedIndex = 0;
+
   // @override
   // void initState() {
   //   super.initState();
@@ -105,6 +112,18 @@ class _ReportScreenState extends State<ReportScreen>
         addItems(currentCurrency, response.data.items);
         incrementPage(currentCurrency);
         setHasMore(currentCurrency, response.data.items.length == 15);
+
+        if (currentCurrency == 'all') {
+          allData = response.data.items;
+          totalDollar = double.tryParse(response.data.totalDollar) ?? 0.0;
+          totalRiel = double.tryParse(response.data.totalRiel) ?? 0.0;
+        } else if (currentCurrency == 'riel') {
+          rielData = response.data.items;
+          totalRiel = double.tryParse(response.data.totalRiel) ?? 0.0;
+        } else if (currentCurrency == 'dollar') {
+          dollarData = response.data.items;
+          totalDollar = double.tryParse(response.data.totalDollar) ?? 0.0;
+        }
       });
     } catch (e) {
       print('Failed to load data: $e');
@@ -213,7 +232,7 @@ class _ReportScreenState extends State<ReportScreen>
   void addItems(String currency, List<Item> newItems) {
     switch (currency) {
       case 'all':
-        allItems.addAll(newItems);
+        allData.addAll(newItems);
         break;
       case 'riel':
         rielItems.addAll(newItems);
@@ -239,13 +258,18 @@ class _ReportScreenState extends State<ReportScreen>
   }
 
   List<Item> items(String currency) {
+    // return currency == 'all'
+    //     ? allData
+    //     : currency == 'riel'
+    //         ? rielData
+    //         : dollarData;
     switch (currency) {
       case 'all':
-        return allItems;
+        return allData;
       case 'riel':
-        return rielItems;
+        return rielData;
       case 'dollar':
-        return dollarItems;
+        return dollarData;
       default:
         return [];
     }
@@ -341,9 +365,9 @@ class _ReportScreenState extends State<ReportScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildListView('all'),
-          _buildListView('riel'),
-          _buildListView('dollar'),
+          _buildListView(reportTabBar[0]),
+          _buildListView(reportTabBar[1]),
+          _buildListView(reportTabBar[2]),
         ],
       ),
     );
@@ -376,19 +400,29 @@ class _ReportScreenState extends State<ReportScreen>
         },
         child: currentItems.isEmpty && currentLoading
             ? Center(child: CircularProgressIndicator())
-            : ListView.builder(
-                itemCount: currentItems.length + (currentHasMore ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == currentItems.length) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  final item = currentItems[index];
-                  return ListTile(
-                    title: Text(item.name),
-                    subtitle: Text('${item.amount} ${item.currency}'),
-                  );
-                },
+            : TabBarViewPage(
+                page: currency,
+                // data: currentItems,
+                items: currentItems,
+                totalRiel: totalRiel,
+                totalDollar: totalDollar,
+                hasMore: currentHasMore,
               ),
+        //   child: currentItems.isEmpty && currentLoading
+        // ? Center(child: CircularProgressIndicator())
+        // : ListView.builder(
+        //     itemCount: currentItems.length + (currentHasMore ? 1 : 0),
+        //     itemBuilder: (context, index) {
+        //       if (index == currentItems.length) {
+        //         return Center(child: CircularProgressIndicator());
+        //       }
+        //       final item = currentItems[index];
+        //       return ListTile(
+        //         title: Text(item.name),
+        //         subtitle: Text('${item.amount} ${item.currency}'),
+        //       );
+        //     },
+        //   ),
       ),
     );
   }
