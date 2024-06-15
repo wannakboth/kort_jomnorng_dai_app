@@ -7,11 +7,12 @@ import 'model.dart';
 class ApiController {
   final Dio _dio = Dio();
 
-  Future<ApiResponse> fetchData(
-      {String search = '',
-      String currency = 'all',
-      int page = 1,
-      int size = 15}) async {
+  Future<ApiResponse> fetchData({
+    String search = '',
+    String currency = 'all',
+    int page = 1,
+    int size = 15,
+  }) async {
     final response = await _dio.post(
       searchUrl, // Replace with your API endpoint
       data: {

@@ -1,3 +1,5 @@
+import 'dart:developer';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,10 +12,10 @@ import '../../widget/background.dart';
 import '../../widget/button.dart';
 import '../../widget/color.dart';
 import '../../widget/dismiss_keyboad.dart';
+import '../../widget/format_number.dart';
 import '../../widget/icon.dart';
 import '../../widget/list_array.dart';
 import '../../widget/stroke_text.dart';
-import 'tabbar_view_page.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
@@ -48,18 +50,6 @@ class _ReportScreenState extends State<ReportScreen>
 
   double totalDollar = 0.0;
   double totalRiel = 0.0;
-  List<Item> allData = [];
-  List<Item> rielData = [];
-  List<Item> dollarData = [];
-  int _selectedIndex = 0;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _tabController = TabController(length: 3, vsync: this);
-  //   _tabController.addListener(_onTabChanged);
-  //   fetchData(currentCurrency: 'all');
-  // }
 
   @override
   void dispose() {
@@ -70,58 +60,73 @@ class _ReportScreenState extends State<ReportScreen>
     super.dispose();
   }
 
-  void _onTabChanged() {
-    if (_tabController.indexIsChanging) {
-      setState(() {
-        switch (_tabController.index) {
-          case 0:
-            if (allItems.isEmpty) fetchData(currentCurrency: 'all');
-            break;
-          case 1:
-            if (rielItems.isEmpty) fetchData(currentCurrency: 'riel');
-            break;
-          case 2:
-            if (dollarItems.isEmpty) fetchData(currentCurrency: 'dollar');
-            break;
-        }
-      });
-    }
+  @override
+  void initState() {
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(_onTabChanged);
+    fetchData(index: 0);
+    searchController.addListener(_onSearchChanged);
+    super.initState();
   }
 
-  Future<void> fetchData(
-      {required String currentCurrency, bool reset = false}) async {
-    if (isLoading(currentCurrency) || !hasMore(currentCurrency)) return;
+  void _onSearchChanged() {
+    setState(() {});
+  }
+
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging) {
+      return;
+    }
+    setState(() {
+      switch (_tabController.index) {
+        case 0:
+          fetchData(index: 0, reset: true);
+          break;
+        case 1:
+          fetchData(index: 1, reset: true);
+          break;
+        case 2:
+          fetchData(index: 2, reset: true);
+          break;
+      }
+    });
+  }
+
+  Future<void> fetchData({
+    required int index,
+    bool reset = false,
+  }) async {
+    if (isLoading(index) || !hasMore(index)) return;
 
     if (reset) {
       setState(() {
-        clearItems(currentCurrency);
-        resetPage(currentCurrency);
+        clearItems(index);
+        resetPage(index);
       });
     }
 
     setState(() {
-      setLoading(currentCurrency, true);
+      setLoading(index, true);
     });
 
     try {
       ApiResponse response = await apiController.fetchData(
-          currency: currentCurrency,
-          page: currentPage(currentCurrency),
-          size: 15);
+        search: searchController.text,
+        currency: reportTabBar[index],
+        page: currentPage(index),
+        size: 15,
+      );
       setState(() {
-        addItems(currentCurrency, response.data.items);
-        incrementPage(currentCurrency);
-        setHasMore(currentCurrency, response.data.items.length == 15);
+        addItems(index, response.data.items);
+        incrementPage(index);
+        setHasMore(index, response.data.items.length == 15);
 
-        if (currentCurrency == 'all') {
-          allData = response.data.items;
+        if (index == 0) {
           totalDollar = double.tryParse(response.data.totalDollar) ?? 0.0;
           totalRiel = double.tryParse(response.data.totalRiel) ?? 0.0;
-        } else if (currentCurrency == 'riel') {
-          rielData = response.data.items;
+        } else if (index == 1) {
           totalRiel = double.tryParse(response.data.totalRiel) ?? 0.0;
-        } else if (currentCurrency == 'dollar') {
-          dollarData = response.data.items;
+        } else if (index == 2) {
           totalDollar = double.tryParse(response.data.totalDollar) ?? 0.0;
         }
       });
@@ -129,605 +134,598 @@ class _ReportScreenState extends State<ReportScreen>
       print('Failed to load data: $e');
     } finally {
       setState(() {
-        setLoading(currentCurrency, false);
+        setLoading(index, false);
       });
     }
   }
 
-  bool isLoading(String currency) {
-    switch (currency) {
-      case 'all':
+  bool isLoading(int index) {
+    switch (reportTabBar[index]) {
+      case 'ទាំងអស់':
         return allIsLoading;
-      case 'riel':
+      case 'រៀល':
         return rielIsLoading;
-      case 'dollar':
+      case 'ដុល្លារ':
         return dollarIsLoading;
       default:
         return false;
     }
   }
 
-  void setLoading(String currency, bool loading) {
-    switch (currency) {
-      case 'all':
+  void setLoading(int index, bool loading) {
+    switch (reportTabBar[index]) {
+      case 'ទាំងអស់':
         allIsLoading = loading;
         break;
-      case 'riel':
+      case 'រៀល':
         rielIsLoading = loading;
         break;
-      case 'dollar':
+      case 'ដុល្លារ':
         dollarIsLoading = loading;
         break;
     }
   }
 
-  bool hasMore(String currency) {
-    switch (currency) {
-      case 'all':
+  bool hasMore(int index) {
+    switch (reportTabBar[index]) {
+      case 'ទាំងអស់':
         return allHasMore;
-      case 'riel':
+      case 'រៀល':
         return rielHasMore;
-      case 'dollar':
+      case 'ដុល្លារ':
         return dollarHasMore;
       default:
         return false;
     }
   }
 
-  void setHasMore(String currency, bool hasMore) {
-    switch (currency) {
-      case 'all':
+  void setHasMore(int index, bool hasMore) {
+    switch (reportTabBar[index]) {
+      case 'ទាំងអស់':
         allHasMore = hasMore;
         break;
-      case 'riel':
+      case 'រៀល':
         rielHasMore = hasMore;
         break;
-      case 'dollar':
+      case 'ដុល្លារ':
         dollarHasMore = hasMore;
         break;
     }
   }
 
-  int currentPage(String currency) {
-    switch (currency) {
-      case 'all':
+  int currentPage(int index) {
+    switch (reportTabBar[index]) {
+      case 'ទាំងអស់':
         return allCurrentPage;
-      case 'riel':
+      case 'រៀល':
         return rielCurrentPage;
-      case 'dollar':
+      case 'ដុល្លារ':
         return dollarCurrentPage;
       default:
         return 1;
     }
   }
 
-  void incrementPage(String currency) {
-    switch (currency) {
-      case 'all':
+  void incrementPage(int index) {
+    switch (reportTabBar[index]) {
+      case 'ទាំងអស់':
         allCurrentPage++;
         break;
-      case 'riel':
+      case 'រៀល':
         rielCurrentPage++;
         break;
-      case 'dollar':
+      case 'ដុល្លារ':
         dollarCurrentPage++;
         break;
     }
   }
 
-  void resetPage(String currency) {
-    switch (currency) {
-      case 'all':
+  void resetPage(int index) {
+    switch (reportTabBar[index]) {
+      case 'ទាំងអស់':
         allCurrentPage = 1;
         break;
-      case 'riel':
+      case 'រៀល':
         rielCurrentPage = 1;
         break;
-      case 'dollar':
+      case 'ដុល្លារ':
         dollarCurrentPage = 1;
         break;
     }
   }
 
-  void addItems(String currency, List<Item> newItems) {
-    switch (currency) {
-      case 'all':
-        allData.addAll(newItems);
+  void addItems(int index, List<Item> newItems) {
+    switch (reportTabBar[index]) {
+      case 'ទាំងអស់':
+        allItems.addAll(newItems);
         break;
-      case 'riel':
+      case 'រៀល':
         rielItems.addAll(newItems);
         break;
-      case 'dollar':
+      case 'ដុល្លារ':
         dollarItems.addAll(newItems);
         break;
     }
   }
 
-  void clearItems(String currency) {
-    switch (currency) {
-      case 'all':
+  void clearItems(int index) {
+    switch (reportTabBar[index]) {
+      case 'ទាំងអស់':
         allItems.clear();
         break;
-      case 'riel':
+      case 'រៀល':
         rielItems.clear();
         break;
-      case 'dollar':
+      case 'ដុល្លារ':
         dollarItems.clear();
         break;
     }
   }
 
-  List<Item> items(String currency) {
-    // return currency == 'all'
-    //     ? allData
-    //     : currency == 'riel'
-    //         ? rielData
-    //         : dollarData;
-    switch (currency) {
-      case 'all':
-        return allData;
-      case 'riel':
-        return rielData;
-      case 'dollar':
-        return dollarData;
+  List<Item> items(int index) {
+    switch (reportTabBar[index]) {
+      case 'ទាំងអស់':
+        return allItems;
+      case 'រៀល':
+        return rielItems;
+      case 'ដុល្លារ':
+        return dollarItems;
       default:
         return [];
     }
   }
 
   @override
-  void initState() {
-    _tabController = TabController(length: 3, vsync: this);
-    _tabController.addListener(_onTabChanged);
-    fetchData(currentCurrency: 'all');
-
-    searchController.addListener(_onSearchChanged);
-    super.initState();
-  }
-
-  _onSearchChanged() {
-    setState(() {});
-  }
-
-  // void _onTabChanged() {
-  //   if (_tabController.indexIsChanging) {
-  //     setState(() {
-  //       currentPage = 1;
-  //       items.clear();
-  //       hasMore = true;
-  //       if (_tabController.index == 0) {
-  //         currentCurrency = 'all';
-  //       } else if (_tabController.index == 1) {
-  //         currentCurrency = 'riel';
-  //       } else {
-  //         currentCurrency = 'dollar';
-  //       }
-  //       fetchData();
-  //     });
-  //   }
-  // }
-
-  // Future<void> fetchData() async {
-  //   if (isLoading || !hasMore) return;
-
-  //   setState(() {
-  //     isLoading = true;
-  //   });
-
-  //   try {
-  //     ApiResponse response = await apiController.fetchData(
-  //         currency: currentCurrency, page: currentPage, size: 15);
-  //     setState(() {
-  //       items.addAll(response.data.items);
-  //       totalItems = response.data.items.length;
-  //       currentPage++;
-  //       hasMore = response.data.items.length == 15;
-  //     });
-  //   } catch (e) {
-  //     print('Failed to load data: $e');
-  //   } finally {
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
-
-  // Future<ApiResponse> fetchDataForTab(int index) {
-  //   return apiController.fetchData(
-  //     search: searchController.text,
-  //     currency: reportTabBar[index],
-  //   );
-  // }
-
-  // @override
-  // void dispose() {
-  //   searchController.removeListener(_onSearchChanged);
-  //   searchController.dispose();
-  //   searchFocusNode.dispose();
-  //   _tabController.dispose();
-  //   super.dispose();
-  // }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Data Screen'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: 'All'),
-            Tab(text: 'Riel'),
-            Tab(text: 'Dollar'),
-          ],
+    return Background(
+      widgets: DismissKeyboard(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: buildAppBar(),
+          body: buildBody(),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+    );
+  }
+
+  AppBar buildAppBar() {
+    return AppBar(
+      elevation: 0,
+      centerTitle: false,
+      backgroundColor: Colors.transparent,
+      leading: BackButton(
+        color: AppColor.WHITE,
+      ),
+      title: Container(
+        margin: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width * 0.1,
+        ),
+        child: AppWidget.name(
+          context,
+          fontSize: 12,
+          imageSize: MediaQuery.of(context).size.width * 0.1,
+          mainAxisAlignment: MainAxisAlignment.start,
+        ),
+      ),
+    );
+  }
+
+  buildBody() {
+    return Column(
+      children: [
+        title(),
+        const SizedBox(height: 8),
+        searchField(),
+        const SizedBox(height: 8),
+        tabbar(),
+        const SizedBox(height: 24),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              buildListView(0),
+              buildListView(1),
+              buildListView(2),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  title() {
+    return Container(
+      alignment: Alignment.center,
+      margin: const EdgeInsets.only(top: 8),
+      child: StrokeText(
+        text: 'របាយការណ៍ចំណងដៃ',
+        textColor: AppColor.BLUE,
+        size: 20,
+      ),
+    );
+  }
+
+  searchField() {
+    return Container(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
         children: [
-          _buildListView(reportTabBar[0]),
-          _buildListView(reportTabBar[1]),
-          _buildListView(reportTabBar[2]),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: TextFormField(
+                controller: searchController,
+                focusNode: searchFocusNode,
+                obscureText: false,
+                textCapitalization: TextCapitalization.sentences,
+                textInputAction: TextInputAction.search,
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  color: AppColor.WHITE,
+                  package: 'khmer_fonts',
+                  fontFamily: KhmerFonts.fasthand,
+                ),
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  labelStyle: TextStyle(
+                    fontSize: 11.sp,
+                    color: AppColor.WHITE,
+                    package: 'khmer_fonts',
+                    fontFamily: KhmerFonts.fasthand,
+                  ),
+                  hintText: 'ស្វែងរកឈ្មោះភ្ញៀវ...',
+                  hintStyle: TextStyle(
+                    fontSize: 11.sp,
+                    color: AppColor.WHITE_60,
+                    package: 'khmer_fonts',
+                    fontFamily: KhmerFonts.fasthand,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: AppColor.WHITE,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: AppColor.PRIMARY,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: AppColor.RED,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: AppColor.RED,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  filled: true,
+                  fillColor: AppColor.BLUE_OPACITY_40,
+                  prefixIcon: Icon(
+                    CupertinoIcons.search,
+                    color: AppColor.WHITE,
+                  ),
+                  suffixIcon: searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(
+                            Icons.close_rounded,
+                            color: AppColor.WHITE,
+                            size: 18,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              searchController.clear();
+                              fetchData(
+                                  index: _tabController.index, reset: true);
+                            });
+                          },
+                        )
+                      : null,
+                ),
+                onFieldSubmitted: (value) {
+                  fetchData(index: _tabController.index, reset: true);
+                },
+              ),
+            ),
+          ),
         ],
       ),
     );
-    // return Background(
-    //   widgets: DismissKeyboard(
-    //     child: Scaffold(
-    //       backgroundColor: Colors.transparent,
-    //       appBar: buildAppBar(),
-    //       body: buildBody(),
-    //     ),
-    //   ),
-    // );
   }
 
-  Widget _buildListView(String currency) {
-    List<Item> currentItems = items(currency);
-    bool currentLoading = isLoading(currency);
-    bool currentHasMore = hasMore(currency);
+  suffix() {
+    if (searchController.text.isNotEmpty) {
+      setState(() {
+        IconButton(
+          icon: Icon(
+            Icons.close_rounded,
+            color: AppColor.WHITE,
+            size: 18,
+          ),
+          onPressed: () {
+            setState(() {
+              searchController.clear();
+              fetchData(index: _tabController.index, reset: true);
+            });
+          },
+        );
+      });
+    }
+  }
+
+  tabbar() {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width * 0.1),
+      child: TabBar(
+        dividerColor: Colors.transparent,
+        unselectedLabelColor: Colors.black,
+        unselectedLabelStyle: TextStyle(
+          color: AppColor.PRIMARY,
+          fontSize: 11.sp,
+          fontWeight: FontWeight.w500,
+          package: 'khmer_fonts',
+          fontFamily: KhmerFonts.fasthand,
+        ),
+        labelStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 11.sp,
+          fontWeight: FontWeight.w500,
+          package: 'khmer_fonts',
+          fontFamily: KhmerFonts.fasthand,
+        ),
+        labelColor: Colors.white,
+        labelPadding: const EdgeInsets.all(0),
+        controller: _tabController,
+        indicator: const BoxDecoration(),
+        tabs: [
+          Tab(
+            child: AppButton.smallButton(
+              context,
+              text: reportTabBar[0],
+              icon: AppIcon.money(width: 0, height: 0),
+              space: 0,
+              horizontal: 22,
+              backgroundColor: AppColor.BLACK_OPACITY,
+              borderColor: _tabController.index == 0
+                  ? AppColor.WHITE
+                  : AppColor.WHITE_60,
+              shadow: _tabController.index == 0
+                  ? [
+                      BoxShadow(
+                        color: AppColor.SHADOW,
+                        spreadRadius: 4,
+                        blurRadius: 4,
+                        offset: const Offset(0, 0),
+                      ),
+                    ]
+                  : [],
+              onTap: () {
+                _tabController.animateTo(0);
+              },
+            ),
+          ),
+          Tab(
+            child: AppButton.smallButton(
+              context,
+              text: reportTabBar[1],
+              icon: AppIcon.riel(),
+              backgroundColor: AppColor.PRIMARY_OPACITY,
+              borderColor: _tabController.index == 1
+                  ? AppColor.WHITE
+                  : AppColor.WHITE_60,
+              shadow: _tabController.index == 1
+                  ? [
+                      BoxShadow(
+                        color: AppColor.SHADOW,
+                        spreadRadius: 4,
+                        blurRadius: 4,
+                        offset: const Offset(0, 0),
+                      ),
+                    ]
+                  : [],
+              onTap: () {
+                _tabController.animateTo(1);
+              },
+            ),
+          ),
+          Tab(
+            child: AppButton.smallButton(
+              context,
+              text: reportTabBar[2],
+              icon: AppIcon.dollar(),
+              backgroundColor: AppColor.RED_OPACITY,
+              borderColor: _tabController.index == 2
+                  ? AppColor.WHITE
+                  : AppColor.WHITE_60,
+              shadow: _tabController.index == 2
+                  ? [
+                      BoxShadow(
+                        color: AppColor.SHADOW,
+                        spreadRadius: 4,
+                        blurRadius: 4,
+                        offset: const Offset(0, 0),
+                      ),
+                    ]
+                  : [],
+              onTap: () {
+                _tabController.animateTo(2);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  buildListView(int tabIdx) {
+    List<Item> currentItems = items(tabIdx);
+    bool currentLoading = isLoading(tabIdx);
+    bool currentHasMore = hasMore(tabIdx);
 
     return RefreshIndicator(
-      onRefresh: () => fetchData(currentCurrency: currency, reset: true),
+      onRefresh: () => fetchData(index: tabIdx, reset: true),
       child: NotificationListener<ScrollNotification>(
         onNotification: (ScrollNotification scrollInfo) {
           if (!currentLoading &&
               currentHasMore &&
               scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-            fetchData(currentCurrency: currency);
+            fetchData(index: tabIdx);
           }
           return false;
         },
-        child: currentItems.isEmpty && currentLoading
-            ? Center(child: CircularProgressIndicator())
-            : TabBarViewPage(
-                page: currency,
-                // data: currentItems,
-                items: currentItems,
-                totalRiel: totalRiel,
-                totalDollar: totalDollar,
-                hasMore: currentHasMore,
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  StrokeText(
+                    text: 'ទឹកប្រាក់សរុប',
+                    size: 14.sp,
+                    textColor: AppColor.WHITE,
+                    strokeColor: Colors.transparent,
+                  ),
+                  tabIdx == 0
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              StrokeText(
+                                text:
+                                    '${FormatNumber.formatCurrency('$totalRiel', 'រៀល')} រៀល',
+                                size: 9.sp,
+                                textColor: AppColor.BLUE,
+                              ),
+                              const SizedBox(height: 4),
+                              StrokeText(
+                                text:
+                                    '${FormatNumber.formatCurrency('$totalDollar', 'ដុល្លារ')} ដុល្លារ',
+                                size: 9.sp,
+                                textColor: AppColor.RED,
+                              ),
+                            ],
+                          ),
+                        )
+                      : tabIdx == 1
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              child: StrokeText(
+                                text:
+                                    '${FormatNumber.formatCurrency('$totalRiel', 'រៀល')} រៀល',
+                                size: 9.sp,
+                                textColor: AppColor.BLUE,
+                              ),
+                            )
+                          : tabIdx == 2
+                              ? Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 6),
+                                  child: StrokeText(
+                                    text:
+                                        '${FormatNumber.formatCurrency('$totalDollar', 'ដុល្លារ')} ដុល្លារ',
+                                    size: 9.sp,
+                                    textColor: AppColor.RED,
+                                  ),
+                                )
+                              : Container(),
+                ],
               ),
-        //   child: currentItems.isEmpty && currentLoading
-        // ? Center(child: CircularProgressIndicator())
-        // : ListView.builder(
-        //     itemCount: currentItems.length + (currentHasMore ? 1 : 0),
-        //     itemBuilder: (context, index) {
-        //       if (index == currentItems.length) {
-        //         return Center(child: CircularProgressIndicator());
-        //       }
-        //       final item = currentItems[index];
-        //       return ListTile(
-        //         title: Text(item.name),
-        //         subtitle: Text('${item.amount} ${item.currency}'),
-        //       );
-        //     },
-        //   ),
+            ),
+            if (currentItems.isEmpty && !currentLoading)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'មិនមានទិន្នន័យ',
+                    style: TextStyle(
+                      color: AppColor.BLUE,
+                      fontFamily: KhmerFonts.dangrek,
+                      fontSize: 14.sp,
+                      package: 'khmer_fonts',
+                    ),
+                  ),
+                ),
+              ),
+            if (currentItems.isNotEmpty)
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: currentItems.length + (currentHasMore ? 1 : 0),
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                itemBuilder: (_, index) {
+                  if (index >= currentItems.length) {
+                    return const Center();
+                  }
+
+                  final item = currentItems[index];
+
+                  return Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: AppColor.WHITE_70,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: item.currency == 'រៀល'
+                            ? AppColor.BLUE_OPACITY_70
+                            : AppColor.RED_OPACITY,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        StrokeText(
+                          text: item.name,
+                          size: 12.sp,
+                          textColor: item.currency == 'រៀល'
+                              ? AppColor.BLUE
+                              : AppColor.RED,
+                          strokeColor: Colors.transparent,
+                        ),
+                        Text(
+                          '${FormatNumber.formatCurrency(item.amount, item.currency)} ${item.currency}',
+                          style: TextStyle(
+                            color: item.currency == 'រៀល'
+                                ? AppColor.BLUE
+                                : AppColor.RED,
+                            fontFamily: KhmerFonts.fasthand,
+                            fontSize: 9.sp,
+                            package: 'khmer_fonts',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            if (currentLoading)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: CircularProgressIndicator(
+                    color: AppColor.WHITE,
+                  ),
+                ),
+              ),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
-
-  // buildBody() {
-  //   return Column(
-  //     children: [
-  //       title(),
-  //       const SizedBox(height: 8),
-  //       searchField(),
-  //       const SizedBox(height: 8),
-  //       tabbar(),
-  //       const SizedBox(height: 24),
-  //       Expanded(
-  //         child: TabBarView(
-  //           controller: _tabController,
-  //           children: [
-  //             buildTabContent(0),
-  //             buildTabContent(1),
-  //             buildTabContent(2),
-  //           ],
-  //         ),
-  //       ),
-  //       const SizedBox(height: 50),
-  //     ],
-  //   );
-  // }
-
-  // Widget buildTabContent(int index) {
-  //   return FutureBuilder<ApiResponse>(
-  //     future: fetchDataForTab(index),
-  //     builder: (context, snapshot) {
-  //       if (snapshot.connectionState == ConnectionState.waiting) {
-  //         return Center(
-  //           child: CircularProgressIndicator(
-  //             color: AppColor.WHITE,
-  //           ),
-  //         );
-  //       } else if (snapshot.data?.data == null || snapshot.data == null) {
-  //         return const Center(child: Text('No data found'));
-  //       } else if (snapshot.hasError) {
-  //         return Center(child: Text('Error: ${snapshot.error}'));
-  //       } else if (snapshot.hasData) {
-  //         final data = snapshot.data!.data;
-  //         final item = data?.items;
-
-  //         return TabBarViewPage(
-  //           page: reportTabBar[index],
-  //           data: data,
-  //           items: item,
-  //         );
-  //       } else {
-  //         return const Center(child: Text('No data found'));
-  //       }
-  //     },
-  //   );
-  // }
-
-  // tabbar() {
-  //   return Padding(
-  //     padding: EdgeInsets.symmetric(
-  //         horizontal: MediaQuery.of(context).size.width * 0.1),
-  //     child: TabBar(
-  //       dividerColor: Colors.transparent,
-  //       unselectedLabelColor: Colors.black,
-  //       unselectedLabelStyle: TextStyle(
-  //         color: AppColor.PRIMARY,
-  //         fontSize: 11.sp,
-  //         fontWeight: FontWeight.w500,
-  //         package: 'khmer_fonts',
-  //         fontFamily: KhmerFonts.fasthand,
-  //       ),
-  //       labelStyle: TextStyle(
-  //         color: Colors.white,
-  //         fontSize: 11.sp,
-  //         fontWeight: FontWeight.w500,
-  //         package: 'khmer_fonts',
-  //         fontFamily: KhmerFonts.fasthand,
-  //       ),
-  //       labelColor: Colors.white,
-  //       labelPadding: const EdgeInsets.all(0),
-  //       controller: _tabController,
-  //       indicator: const BoxDecoration(),
-  //       tabs: [
-  //         Tab(
-  //           child: AppButton.smallButton(
-  //             context,
-  //             text: reportTabBar[0],
-  //             icon: AppIcon.money(width: 0, height: 0),
-  //             space: 0,
-  //             horizontal: 22,
-  //             backgroundColor: AppColor.BLACK_OPACITY,
-  //             borderColor:
-  //                 _selectedIndex == 0 ? AppColor.WHITE : AppColor.WHITE_60,
-  //             shadow: _selectedIndex == 0
-  //                 ? [
-  //                     BoxShadow(
-  //                       color: AppColor.SHADOW,
-  //                       spreadRadius: 4,
-  //                       blurRadius: 4,
-  //                       offset: const Offset(0, 0),
-  //                     ),
-  //                   ]
-  //                 : [],
-  //             onTap: () {
-  //               _tabController.animateTo(0);
-  //             },
-  //           ),
-  //         ),
-  //         Tab(
-  //           child: AppButton.smallButton(
-  //             context,
-  //             text: reportTabBar[1],
-  //             icon: AppIcon.riel(),
-  //             backgroundColor: AppColor.PRIMARY_OPACITY,
-  //             borderColor:
-  //                 _selectedIndex == 1 ? AppColor.WHITE : AppColor.WHITE_60,
-  //             shadow: _selectedIndex == 1
-  //                 ? [
-  //                     BoxShadow(
-  //                       color: AppColor.SHADOW,
-  //                       spreadRadius: 4,
-  //                       blurRadius: 4,
-  //                       offset: const Offset(0, 0),
-  //                     ),
-  //                   ]
-  //                 : [],
-  //             onTap: () {
-  //               _tabController.animateTo(1);
-  //             },
-  //           ),
-  //         ),
-  //         Tab(
-  //           child: AppButton.smallButton(
-  //             context,
-  //             text: reportTabBar[2],
-  //             icon: AppIcon.dollar(),
-  //             backgroundColor: AppColor.RED_OPACITY,
-  //             borderColor:
-  //                 _selectedIndex == 2 ? AppColor.WHITE : AppColor.WHITE_60,
-  //             shadow: _selectedIndex == 2
-  //                 ? [
-  //                     BoxShadow(
-  //                       color: AppColor.SHADOW,
-  //                       spreadRadius: 4,
-  //                       blurRadius: 4,
-  //                       offset: const Offset(0, 0),
-  //                     ),
-  //                   ]
-  //                 : [],
-  //             onTap: () {
-  //               _tabController.animateTo(2);
-  //             },
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // searchField() {
-  //   return Container(
-  //     padding: const EdgeInsets.only(top: 6),
-  //     child: Row(
-  //       children: [
-  //         Expanded(
-  //           child: Padding(
-  //             padding: const EdgeInsets.symmetric(horizontal: 24),
-  //             child: TextFormField(
-  //               controller: searchController,
-  //               focusNode: searchFocusNode,
-  //               obscureText: false,
-  //               textCapitalization: TextCapitalization.sentences,
-  //               textInputAction: TextInputAction.search,
-  //               style: TextStyle(
-  //                 fontSize: 11.sp,
-  //                 color: AppColor.WHITE,
-  //                 package: 'khmer_fonts',
-  //                 fontFamily: KhmerFonts.fasthand,
-  //               ),
-  //               decoration: InputDecoration(
-  //                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-  //                 labelStyle: TextStyle(
-  //                   fontSize: 11.sp,
-  //                   color: AppColor.WHITE,
-  //                   package: 'khmer_fonts',
-  //                   fontFamily: KhmerFonts.fasthand,
-  //                 ),
-  //                 hintText: 'ស្វែងរកឈ្មោះភ្ញៀវ...',
-  //                 hintStyle: TextStyle(
-  //                   fontSize: 11.sp,
-  //                   color: AppColor.WHITE_60,
-  //                   package: 'khmer_fonts',
-  //                   fontFamily: KhmerFonts.fasthand,
-  //                 ),
-  //                 enabledBorder: OutlineInputBorder(
-  //                   borderSide: BorderSide(
-  //                     color: AppColor.WHITE,
-  //                     width: 1,
-  //                   ),
-  //                   borderRadius: BorderRadius.circular(16),
-  //                 ),
-  //                 focusedBorder: OutlineInputBorder(
-  //                   borderSide: BorderSide(
-  //                     color: AppColor.PRIMARY,
-  //                     width: 1,
-  //                   ),
-  //                   borderRadius: BorderRadius.circular(16),
-  //                 ),
-  //                 errorBorder: OutlineInputBorder(
-  //                   borderSide: BorderSide(
-  //                     color: AppColor.RED,
-  //                     width: 1,
-  //                   ),
-  //                   borderRadius: BorderRadius.circular(16),
-  //                 ),
-  //                 focusedErrorBorder: OutlineInputBorder(
-  //                   borderSide: BorderSide(
-  //                     color: AppColor.RED,
-  //                     width: 1,
-  //                   ),
-  //                   borderRadius: BorderRadius.circular(16),
-  //                 ),
-  //                 filled: true,
-  //                 fillColor: AppColor.BLUE_OPACITY_40,
-  //                 prefixIcon: Icon(
-  //                   CupertinoIcons.search,
-  //                   color: AppColor.WHITE,
-  //                 ),
-  //                 suffixIcon: searchController.text.isNotEmpty
-  //                     ? IconButton(
-  //                         icon: Icon(
-  //                           Icons.close_rounded,
-  //                           color: AppColor.WHITE,
-  //                           size: 18,
-  //                         ),
-  //                         onPressed: () {
-  //                           setState(() {
-  //                             searchController.clear();
-  //                           });
-  //                         },
-  //                       )
-  //                     : null,
-  //               ),
-  //               onFieldSubmitted: (value) {
-  //                 // action.call();
-  //               },
-  //             ),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // suffix() {
-  //   if (searchController.text.isNotEmpty) {
-  //     setState(() {
-  //       IconButton(
-  //         icon: Icon(
-  //           Icons.close_rounded,
-  //           color: AppColor.WHITE,
-  //           size: 18,
-  //         ),
-  //         onPressed: () {
-  //           setState(() {
-  //             searchController.clear();
-  //           });
-  //         },
-  //       );
-  //     });
-  //   }
-  // }
-
-  // title() {
-  //   return Container(
-  //     alignment: Alignment.center,
-  //     margin: const EdgeInsets.only(top: 8),
-  //     child: StrokeText(
-  //       text: 'របាយការណ៍ចំណងដៃ',
-  //       textColor: AppColor.BLUE,
-  //       size: 20,
-  //     ),
-  //   );
-  // }
-
-  // AppBar buildAppBar() {
-  //   return AppBar(
-  //     elevation: 0,
-  //     centerTitle: false,
-  //     backgroundColor: Colors.transparent,
-  //     leading: BackButton(
-  //       color: AppColor.WHITE,
-  //     ),
-  //     title: Container(
-  //       margin: EdgeInsets.symmetric(
-  //         horizontal: MediaQuery.of(context).size.width * 0.1,
-  //       ),
-  //       child: AppWidget.name(
-  //         context,
-  //         fontSize: 12,
-  //         imageSize: MediaQuery.of(context).size.width * 0.1,
-  //         mainAxisAlignment: MainAxisAlignment.start,
-  //       ),
-  //     ),
-  //   );
-  // }
 }

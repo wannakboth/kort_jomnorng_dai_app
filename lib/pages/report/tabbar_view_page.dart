@@ -13,7 +13,8 @@ class TabBarViewPage extends StatelessWidget {
     required this.items,
     required this.totalRiel,
     required this.totalDollar,
-    required this.hasMore,
+    // required this.hasMore,
+    required this.length,
     // required this.data,
   });
 
@@ -22,7 +23,8 @@ class TabBarViewPage extends StatelessWidget {
   final dynamic items;
   final double totalRiel;
   final double totalDollar;
-  final bool hasMore;
+  // final bool hasMore;
+  final int length;
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +101,7 @@ class TabBarViewPage extends StatelessWidget {
   listItem() {
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: items.length + (hasMore ? 1 : 0),
+      itemCount: length,
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24),
       itemBuilder: (_, index) {
