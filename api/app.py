@@ -25,44 +25,6 @@ class Currency(db.Model):
 with app.app_context():
     db.create_all()
 
-@app.route('/api/currency', methods=['POST'])
-def create_currency():
-    req_data = request.get_json()
-    name = req_data.get('name', '').strip()
-    amount = req_data.get('amount', 0)
-    currency = req_data.get('currency', '').strip().lower()
-
-    if not name:
-        return jsonify({
-            'status': 'Name is required',
-            'errorCode': 400,
-        }), 400
-
-    if currency not in ['dollar', 'riel', 'ដុល្លារ', 'រៀល']:
-        return jsonify({
-            'status': 'Invalid currency',
-            'errorCode': 400,
-        }), 400
-
-    if currency in ['dollar', 'ដុល្លារ']:
-        new_currency = Currency(name=name, riel=None, dollar=amount)
-    elif currency in ['riel', 'រៀល']:
-        new_currency = Currency(name=name, riel=amount, dollar=None)
-
-    db.session.add(new_currency)
-    db.session.commit()
-
-    return jsonify({
-        'status': 'success',
-        'errorCode': 201,
-        'data': {
-            'id': str(new_currency.id),
-            'name': new_currency.name,
-            'amount': str(amount),
-            'currency': 'dollar' if new_currency.dollar else 'riel'
-        }
-    }), 201
-
 @app.route('/api/search', methods=['POST'])
 def search_currency():
     req_data = request.get_json()
@@ -81,40 +43,55 @@ def search_currency():
     total_riel = 0
     total_dollar = 0
 
-    # Define the base query
-    query = Currency.query
+    # Define the base query and order by ID descending
+    query = Currency.query.order_by(Currency.id.desc())
     if search:
         query = query.filter(Currency.name.contains(search))
+
+    # Determine the total number of items for the given query
+    total_items = query.count()
+    start_count = total_items - (page - 1) * size
 
     # Paginate based on the currency parameter
     if currency in ['all', 'ទាំងអស់']:
         pagination = query.paginate(page=page, per_page=size, error_out=False)
         items = pagination.items
+        count = start_count
         for item in items:
             if item.riel is not None:
-                item_data = {'id': str(item.id), 'name': item.name, 'amount': str(item.riel), 'currency': 'រៀល'}
+                item_data = {'count': count, 'id': str(item.id), 'name': item.name, 'amount': str(item.riel), 'currency': 'រៀល'}
                 filtered_items.append(item_data)
                 total_riel += item.riel
+                count -= 1
             if item.dollar is not None:
-                item_data = {'id': str(item.id), 'name': item.name, 'amount': f"{item.dollar:.2f}", 'currency': 'ដុល្លារ'}
+                item_data = {'count': count, 'id': str(item.id), 'name': item.name, 'amount': f"{item.dollar:.2f}", 'currency': 'ដុល្លារ'}
                 filtered_items.append(item_data)
                 total_dollar += item.dollar
+                count -= 1
     elif currency in ['riel', 'រៀល']:
         riel_query = query.filter(Currency.riel.isnot(None))
+        total_items = riel_query.count()
+        start_count = total_items - (page - 1) * size
         pagination = riel_query.paginate(page=page, per_page=size, error_out=False)
         items = pagination.items
+        count = start_count
         for item in items:
-            item_data = {'id': str(item.id), 'name': item.name, 'amount': str(item.riel), 'currency': 'រៀល'}
+            item_data = {'count': count, 'id': str(item.id), 'name': item.name, 'amount': str(item.riel), 'currency': 'រៀល'}
             filtered_items.append(item_data)
             total_riel += item.riel
+            count -= 1
     elif currency in ['dollar', 'ដុល្លារ']:
         dollar_query = query.filter(Currency.dollar.isnot(None))
+        total_items = dollar_query.count()
+        start_count = total_items - (page - 1) * size
         pagination = dollar_query.paginate(page=page, per_page=size, error_out=False)
         items = pagination.items
+        count = start_count
         for item in items:
-            item_data = {'id': str(item.id), 'name': item.name, 'amount': f"{item.dollar:.2f}", 'currency': 'ដុល្លារ'}
+            item_data = {'count': count, 'id': str(item.id), 'name': item.name, 'amount': f"{item.dollar:.2f}", 'currency': 'ដុល្លារ'}
             filtered_items.append(item_data)
             total_dollar += item.dollar
+            count -= 1
     else:
         return jsonify({
             'status': 'Invalid currency parameter',

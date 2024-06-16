@@ -1,10 +1,11 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:khmer_fonts/khmer_fonts.dart';
 import 'package:kort_jomnorng_dai_app/widget/stroke_text.dart';
-
+import '../../service/api_response.dart';
+import '../../service/controller.dart';
+import '../../service/create_model.dart';
 import '../../widget/background.dart';
 import '../../widget/button.dart';
 import '../../widget/color.dart';
@@ -21,12 +22,13 @@ class InsertName extends StatefulWidget {
 }
 
 class _InsertNameState extends State<InsertName> {
-  final inputFocusNode = FocusNode();
-  final inputController = TextEditingController();
+  // final inputFocusNode = FocusNode();
+  // final inputController = TextEditingController();
 
   String amountValue = "0";
   String currency = '';
-  String name = '';
+
+  final ApiController apiController = ApiController();
 
   @override
   void initState() {
@@ -40,6 +42,56 @@ class _InsertNameState extends State<InsertName> {
     amountValue = "0";
     currency = 'រៀល';
     super.dispose();
+  }
+
+  Future<void> _postData() async {
+    final args = ModalRoute.of(context)!.settings.arguments as Map;
+    // final argName = args[name];
+
+    
+
+    if (args['name'] != '' && amountValue != '0') {
+      final transaction = Transaction(
+      name: args['name'],
+      amount: int.parse('${FormatNumber.sentCurrency(amountValue, currency)}'),
+      currency: currency,
+    );
+
+    print('${args['name']}, $amountValue, $currency');
+
+      try {
+        final ApiResponse response =
+            await apiController.postInsertAmount(transaction);
+        _showDialog('Success', 'Status: ${response.status}');
+        log('Data sent successfully', name: 'Confirm');
+      } catch (e) {
+        _showDialog('Error', 'Failed to post data: $e');
+        log('Failed to send data: $e', name: 'Error');
+      }
+    } else {
+      _showDialog('Error', 'Please fill in all fields');
+      log('Validation failed', name: 'Validation');
+    }
+  }
+
+  void _showDialog(String title, String content) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -92,7 +144,7 @@ class _InsertNameState extends State<InsertName> {
       backgroundColor: Colors.transparent,
       leading: BackButton(
         color: AppColor.WHITE,
-        onPressed: () => GoNavigate.goBack,
+        onPressed: () => GoNavigate.goBack(),
       ),
     );
   }
@@ -106,91 +158,6 @@ class _InsertNameState extends State<InsertName> {
         text: args['name'],
         textColor: AppColor.BLUE,
         size: 26,
-      ),
-    );
-  }
-
-  insertName() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: TextFormField(
-        controller: inputController,
-        focusNode: inputFocusNode,
-        obscureText: false,
-        textCapitalization: TextCapitalization.sentences,
-        textInputAction: TextInputAction.done,
-        style: TextStyle(
-          fontSize: 26.sp,
-          color: AppColor.BLUE,
-          package: 'khmer_fonts',
-          fontFamily: KhmerFonts.dangrek,
-        ),
-        textAlign: TextAlign.center,
-        decoration: InputDecoration(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          labelStyle: TextStyle(
-            fontSize: 26.sp,
-            color: AppColor.WHITE,
-            package: 'khmer_fonts',
-            fontFamily: KhmerFonts.dangrek,
-          ),
-          hintText: 'បញ្ចូលឈ្មោះភ្ញៀវ',
-          hintStyle: TextStyle(
-            fontSize: 26.sp,
-            color: AppColor.WHITE_60,
-            package: 'khmer_fonts',
-            fontFamily: KhmerFonts.dangrek,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: AppColor.WHITE,
-              width: 1,
-            ),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: AppColor.BLUE,
-              width: 1,
-            ),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: AppColor.RED,
-              width: 1,
-            ),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: AppColor.RED,
-              width: 1,
-            ),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          filled: true,
-          isDense: true,
-          fillColor: AppColor.PRIMARY_OPACITY,
-          suffixIcon: inputController.text.isNotEmpty
-              ? IconButton(
-                  icon: Icon(
-                    Icons.close_rounded,
-                    color: AppColor.WHITE,
-                    size: 18,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      inputController.clear();
-                    });
-                  },
-                )
-              : null,
-        ),
-        onFieldSubmitted: (value) {
-          // action.call();
-        },
       ),
     );
   }
@@ -398,8 +365,7 @@ class _InsertNameState extends State<InsertName> {
       onTap: amountValue == '0'
           ? () {}
           : () {
-              GoNavigate.pushReplacementNamed('/home');
-              log('send', name: 'Confirm');
+              _postData();
             },
     );
   }

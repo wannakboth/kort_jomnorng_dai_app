@@ -1,11 +1,13 @@
 class Item {
   final String id;
+  final int count;
   final String name;
   final String amount;
   final String currency;
 
   Item(
       {required this.id,
+      required this.count,
       required this.name,
       required this.amount,
       required this.currency});
@@ -13,6 +15,7 @@ class Item {
   factory Item.fromJson(Map<String, dynamic> json) {
     return Item(
       id: json['id'],
+      count: json['count'],
       name: json['name'],
       amount: json['amount'],
       currency: json['currency'],
@@ -22,6 +25,7 @@ class Item {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'count': count,
       'name': name,
       'amount': amount,
       'currency': currency,
@@ -55,31 +59,6 @@ class Data {
       'items': items.map((item) => item.toJson()).toList(),
       'totalDollar': totalDollar,
       'totalRiel': totalRiel,
-    };
-  }
-}
-
-class ApiResponse {
-  final Data data;
-  final int errorCode;
-  final String status;
-
-  ApiResponse(
-      {required this.data, required this.errorCode, required this.status});
-
-  factory ApiResponse.fromJson(Map<String, dynamic> json) {
-    return ApiResponse(
-      data: Data.fromJson(json['data']),
-      errorCode: json['errorCode'],
-      status: json['status'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'data': data.toJson(),
-      'errorCode': errorCode,
-      'status': status,
     };
   }
 }

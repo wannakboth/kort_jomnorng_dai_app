@@ -59,7 +59,7 @@ class FormatNumber {
     }
 
     if (currency == 'រៀល') {
-      if (value.isEmpty || value == '0') return formatNumberToKhmer('0​');
+      if (value.isEmpty || value == '0') return formatNumberToKhmer('0');
 
       final double parsedValue =
           double.tryParse(value.replaceAll(',', '')) ?? 0;

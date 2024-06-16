@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:khmer_fonts/khmer_fonts.dart';
 
+import '../../service/api_response.dart';
 import '../../service/controller.dart';
-import '../../service/model.dart';
+import '../../service/search_model.dart';
 import '../../widget/app_widget.dart';
 import '../../widget/background.dart';
 import '../../widget/button.dart';
@@ -108,7 +109,7 @@ class _ReportScreenState extends State<ReportScreen>
     });
 
     try {
-      ApiResponse response = await apiController.fetchData(
+      ApiResponse response = await apiController.fetchSearchData(
         search: searchController.text,
         currency: reportTabBar[index],
         page: currentPage(index),
@@ -686,13 +687,25 @@ class _ReportScreenState extends State<ReportScreen>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        StrokeText(
-                          text: item.name,
-                          size: 12.sp,
-                          textColor: item.currency == 'រៀល'
-                              ? AppColor.BLUE
-                              : AppColor.RED,
-                          strokeColor: Colors.transparent,
+                        Row(
+                          children: [
+                            StrokeText(
+                              text:
+                                  '${FormatNumber.formatNumberToKhmer(item.count.toString())}.',
+                              size: 10.sp,
+                              textColor: AppColor.BLACK,
+                              strokeColor: Colors.transparent,
+                            ),
+                            const SizedBox(width: 8),
+                            StrokeText(
+                              text: item.name,
+                              size: 12.sp,
+                              textColor: item.currency == 'រៀល'
+                                  ? AppColor.BLUE
+                                  : AppColor.RED,
+                              strokeColor: Colors.transparent,
+                            ),
+                          ],
                         ),
                         Text(
                           '${FormatNumber.formatCurrency(item.amount, item.currency)} ${item.currency}',
