@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:khmer_fonts/khmer_fonts.dart';
 
-import '../../service/api_response.dart';
 import '../../service/controller.dart';
 import '../../service/search_model.dart';
 import '../../widget/app_widget.dart';
@@ -69,7 +68,9 @@ class _ReportScreenState extends State<ReportScreen>
   }
 
   void _onSearchChanged() {
-    setState(() {});
+    setState(() {
+      fetchData(index: _tabController.index, reset: true);
+    });
   }
 
   void _onTabChanged() {
@@ -77,17 +78,7 @@ class _ReportScreenState extends State<ReportScreen>
       return;
     }
     setState(() {
-      switch (_tabController.index) {
-        case 0:
-          fetchData(index: 0, reset: true);
-          break;
-        case 1:
-          fetchData(index: 1, reset: true);
-          break;
-        case 2:
-          fetchData(index: 2, reset: true);
-          break;
-      }
+      fetchData(index: _tabController.index, reset: true);
     });
   }
 
@@ -109,7 +100,7 @@ class _ReportScreenState extends State<ReportScreen>
     });
 
     try {
-      ApiResponse response = await apiController.fetchSearchData(
+      SearchResponse response = await apiController.fetchSearchData(
         search: searchController.text,
         currency: reportTabBar[index],
         page: currentPage(index),
@@ -604,7 +595,7 @@ class _ReportScreenState extends State<ReportScreen>
                             children: [
                               StrokeText(
                                 text:
-                                    '${FormatNumber.formatCurrency('$totalRiel', 'រៀល')} រៀល',
+                                    '${FormatNumber.formatCurrency('$totalRiel', 'រៀល', view: true)} រៀល',
                                 size: 9.sp,
                                 textColor: AppColor.BLUE,
                               ),
@@ -623,7 +614,7 @@ class _ReportScreenState extends State<ReportScreen>
                               padding: const EdgeInsets.symmetric(vertical: 6),
                               child: StrokeText(
                                 text:
-                                    '${FormatNumber.formatCurrency('$totalRiel', 'រៀល')} រៀល',
+                                    '${FormatNumber.formatCurrency('$totalRiel', 'រៀល', view: true)} រៀល',
                                 size: 9.sp,
                                 textColor: AppColor.BLUE,
                               ),
@@ -708,7 +699,7 @@ class _ReportScreenState extends State<ReportScreen>
                           ],
                         ),
                         Text(
-                          '${FormatNumber.formatCurrency(item.amount, item.currency)} ${item.currency}',
+                          '${FormatNumber.formatCurrency(item.amount, item.currency, view: true)} ${item.currency}',
                           style: TextStyle(
                             color: item.currency == 'រៀល'
                                 ? AppColor.BLUE

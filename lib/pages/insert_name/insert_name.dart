@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:khmer_fonts/khmer_fonts.dart';
 import 'package:kort_jomnorng_dai_app/widget/stroke_text.dart';
-import '../../service/api_response.dart';
 import '../../service/controller.dart';
 import '../../service/create_model.dart';
 import '../../widget/background.dart';
@@ -53,14 +52,14 @@ class _InsertNameState extends State<InsertName> {
     if (args['name'] != '' && amountValue != '0') {
       final transaction = Transaction(
       name: args['name'],
-      amount: int.parse('${FormatNumber.sentCurrency(amountValue, currency)}'),
+      amount: double.parse('${FormatNumber.sentCurrency(amountValue, currency)}'),
       currency: currency,
     );
 
     print('${args['name']}, $amountValue, $currency');
 
       try {
-        final ApiResponse response =
+        final CreateResponse response =
             await apiController.postInsertAmount(transaction);
         _showDialog('Success', 'Status: ${response.status}');
         log('Data sent successfully', name: 'Confirm');

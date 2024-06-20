@@ -24,10 +24,43 @@ class Currency(db.Model):
 # Create the database and the table
 with app.app_context():
     db.create_all()
+    
+@app.route('/api/currency', methods=['POST'])
+def create_currency():
+    req_data = request.get_json()
+    name = req_data.get('name', '').strip()
+    amount = req_data.get('amount', 0.0)
+    currency = req_data.get('currency', '').strip().lower()
+
+    if not name:
+        return jsonify({
+            'status': 'Name is required',
+            'errorCode': 400,
+        }), 400
+
+    if currency not in ['dollar', 'riel', 'ដុល្លារ', 'រៀល']:
+        return jsonify({
+            'status': 'Invalid currency',
+            'errorCode': 400,
+        }), 400
+
+    if currency in ['dollar', 'ដុល្លារ']:
+        new_currency = Currency(name=name, riel=None, dollar=amount)
+    elif currency in ['riel', 'រៀល']:
+        new_currency = Currency(name=name, riel=amount, dollar=None)
+
+    db.session.add(new_currency)
+    db.session.commit()
+
+    return jsonify({
+        'status': 'success',
+        'errorCode': 201,
+    }), 201
 
 @app.route('/api/search', methods=['POST'])
 def search_currency():
     req_data = request.get_json()
+    print(req_data)
     search = req_data.get('search', '').strip()
     currency = req_data.get('currency', '').strip().lower()
     page = req_data.get('page', 1)
@@ -113,7 +146,6 @@ def search_currency():
             'items': filtered_items
         }
     }), 200
-
 
 @app.errorhandler(400)
 def bad_request(error):

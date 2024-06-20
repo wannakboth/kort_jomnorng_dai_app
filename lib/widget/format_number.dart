@@ -45,7 +45,11 @@ class FormatNumber {
     return formatNumberToKhmer(formattedNumber);
   }
 
-  static formatCurrency(String value, String currency) {
+  static formatCurrency(
+    String value,
+    String currency, {
+    bool view = false,
+  }) {
     if (currency == 'ដុល្លារ') {
       if (value.isEmpty || value == '0') return formatNumberToKhmer('0.00');
 
@@ -67,7 +71,8 @@ class FormatNumber {
       final double shiftedValue = parsedValue * 100;
 
       final format = NumberFormat('#,###');
-      final formatter = format.format(shiftedValue);
+      final formatter =
+          format.format(view == true ? parsedValue : shiftedValue);
       return formatNumberToKhmer(formatter);
     }
   }

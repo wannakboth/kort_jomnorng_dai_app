@@ -2,13 +2,13 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:kort_jomnorng_dai_app/widget/url.dart';
-import 'api_response.dart';
 import 'create_model.dart';
+import 'search_model.dart';
 
 class ApiController {
   final Dio _dio = Dio();
 
-  Future<ApiResponse> fetchSearchData({
+  Future<SearchResponse> fetchSearchData({
     String search = '',
     String currency = 'all',
     int page = 1,
@@ -26,13 +26,13 @@ class ApiController {
 
     if (response.statusCode == 200) {
       log('${response.data}');
-      return ApiResponse.fromJson(response.data);
+      return SearchResponse.fromJson(response.data);
     } else {
       throw Exception('Failed to load data');
     }
   }
 
-  Future<ApiResponse> postInsertAmount(Transaction transaction) async {
+  Future<CreateResponse> postInsertAmount(Transaction transaction) async {
     try {
       final response = await _dio.post(
         createUrl,
@@ -41,7 +41,7 @@ class ApiController {
 
       if (response.statusCode == 201) {
         log('${response.data}');
-        return ApiResponse.fromJson(response.data);
+        return CreateResponse.fromJson(response.data);
       } else {
         throw Exception('Failed to post data');
       }

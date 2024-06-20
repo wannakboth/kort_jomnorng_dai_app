@@ -62,3 +62,28 @@ class Data {
     };
   }
 }
+
+class SearchResponse {
+  final Data data;
+  final int errorCode;
+  final String status;
+
+  SearchResponse(
+      {required this.data, required this.errorCode, required this.status});
+
+  factory SearchResponse.fromJson(Map<String, dynamic> json) {
+    return SearchResponse(
+      data: Data.fromJson(json['data']),
+      errorCode: json['errorCode'],
+      status: json['status'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'data': data.toJson(),
+      'errorCode': errorCode,
+      'status': status,
+    };
+  }
+}
