@@ -1,3 +1,4 @@
+import os
 import netifaces
 
 from flask import Flask, request, jsonify
@@ -182,6 +183,12 @@ def get_local_ip():
             continue
     return '127.0.0.1'  # Default to localhost if no IP found
 
+def write_ip_to_dart_file(ip_address):
+    dart_file_path = os.path.join('/Users/pwboth/Mobile App/kort_jomnorng_dai_app/lib', 'ip_address.dart')
+    with open(dart_file_path, 'w') as file:
+        file.write(f"const String kPcIpAddress = '{ip_address}';\n")
+
 if __name__ == '__main__':
     local_ip = get_local_ip()
+    write_ip_to_dart_file(local_ip)
     app.run(host=local_ip, port=5000, debug=True, use_reloader=True)

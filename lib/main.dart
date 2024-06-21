@@ -5,13 +5,8 @@ import 'routes/routes.dart';
 import 'widget/go_navigate.dart';
 
 void main() {
-  // _initialize();
   runApp(const MyApp());
 }
-
-// Future<void> _initialize() async {
-//   await initializeIpAddress(); // Ensure the IP address and URLs are set
-// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

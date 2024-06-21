@@ -1,1 +1,1 @@
-const String pcIpAddress = '10.195.6.60';
+const String kPcIpAddress = '172.16.10.239';
