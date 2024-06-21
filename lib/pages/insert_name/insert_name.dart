@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:khmer_fonts/khmer_fonts.dart';
 import 'package:kort_jomnorng_dai_app/widget/stroke_text.dart';
+import 'package:quickalert/quickalert.dart';
 import '../../service/controller.dart';
 import '../../service/create_model.dart';
 import '../../widget/background.dart';
@@ -47,26 +48,30 @@ class _InsertNameState extends State<InsertName> {
     final args = ModalRoute.of(context)!.settings.arguments as Map;
     // final argName = args[name];
 
-    
-
     if (args['name'] != '' && amountValue != '0') {
       final transaction = Transaction(
-      name: args['name'],
-      amount: double.parse('${FormatNumber.sentCurrency(amountValue, currency)}'),
-      currency: currency,
-    );
+        name: args['name'],
+        amount:
+            double.parse('${FormatNumber.sentCurrency(amountValue, currency)}'),
+        currency: currency,
+      );
 
-    print('${args['name']}, $amountValue, $currency');
+      final CreateResponse response =
+          await apiController.postInsertAmount(transaction);
 
-      try {
-        final CreateResponse response =
-            await apiController.postInsertAmount(transaction);
-        _showDialog('Success', 'Status: ${response.status}');
-        log('Data sent successfully', name: 'Confirm');
-      } catch (e) {
-        _showDialog('Error', 'Failed to post data: $e');
-        log('Failed to send data: $e', name: 'Error');
+      if (response.errorCode == 201) {
+        print('yes');
+      } else {
+        print('no');
       }
+
+      // try {
+      //   _showDialog('ជោគជ័យ', 'Status: ${response.status}');
+      //   log('${response.status}', name: 'Confirm');
+      // } catch (e) {
+      //   _showDialog('Error', 'Failed to post data: $e');
+      //   log('Failed to send data: $e', name: 'Error');
+      // }
     } else {
       _showDialog('Error', 'Please fill in all fields');
       log('Validation failed', name: 'Validation');
@@ -74,23 +79,35 @@ class _InsertNameState extends State<InsertName> {
   }
 
   void _showDialog(String title, String content) {
-    showDialog(
+    QuickAlert.show(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(content),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
+      type: QuickAlertType.success,
+      title: 'ជោគជ័យ',
+      text: 'បញ្ចូលចំណងដៃបានជោគជ័យ!',
+      confirmBtnText: 'យល់ព្រម',
+      onConfirmBtnTap: () {
+        GoNavigate.goBack();
+        GoNavigate.goBack();
       },
     );
+    // showDialog(
+    //   context: context,
+    //   builder: (BuildContext context) {
+    //     return AlertDialog(
+    //       title: Text(title),
+    //       content: Text(content),
+    //       actions: [
+    //         TextButton(
+    //           onPressed: () {
+    //             GoNavigate.goBack();
+    //             GoNavigate.goBack();
+    //           },
+    //           child: Text('OK'),
+    //         ),
+    //       ],
+    //     );
+    //   },
+    // );
   }
 
   @override
