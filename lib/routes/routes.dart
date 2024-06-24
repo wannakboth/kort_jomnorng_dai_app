@@ -8,7 +8,7 @@ import '../pages/scan/scan_qr_screen.dart';
 Map<String, Widget Function(BuildContext)> routes = <String, WidgetBuilder>{
   // '/': (context) => const SplashScreen(),
   '/home': (context) => const HomeScreen(),
-  '/scan-qr': (context) => const ScannerScreen(),
+  '/scan-qr': (context) => QRViewExample(),
   '/report': (context) => const ReportScreen(),
   '/insert-name': (context) => const InsertName(),
 };

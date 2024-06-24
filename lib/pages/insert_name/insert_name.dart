@@ -59,19 +59,19 @@ class _InsertNameState extends State<InsertName> {
       final CreateResponse response =
           await apiController.postInsertAmount(transaction);
 
-      if (response.errorCode == 201) {
-        print('yes');
-      } else {
-        print('no');
-      }
-
-      // try {
-      //   _showDialog('ជោគជ័យ', 'Status: ${response.status}');
-      //   log('${response.status}', name: 'Confirm');
-      // } catch (e) {
-      //   _showDialog('Error', 'Failed to post data: $e');
-      //   log('Failed to send data: $e', name: 'Error');
+      // if (response.errorCode == 201) {
+      //   print('yes');
+      // } else {
+      //   print('no');
       // }
+
+      try {
+        _showDialog('ជោគជ័យ', 'Status: ${response.status}');
+        log('${response.status}', name: 'Confirm');
+      } catch (e) {
+        _showDialog('Error', 'Failed to post data: $e');
+        log('Failed to send data: $e', name: 'Error');
+      }
     } else {
       _showDialog('Error', 'Please fill in all fields');
       log('Validation failed', name: 'Validation');
@@ -87,7 +87,7 @@ class _InsertNameState extends State<InsertName> {
       confirmBtnText: 'យល់ព្រម',
       onConfirmBtnTap: () {
         GoNavigate.goBack();
-        GoNavigate.goBack();
+        GoNavigate.pushReplacementNamed('/home');
       },
     );
     // showDialog(

@@ -1,63 +1,71 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 
-class ScannerScreen extends StatefulWidget {
-  const ScannerScreen({super.key});
+import '../../widget/go_navigate.dart';
 
+class QRViewExample extends StatefulWidget {
   @override
-  _ScannerScreenState createState() => _ScannerScreenState();
+  State<StatefulWidget> createState() => _QRViewExampleState();
 }
 
-class _ScannerScreenState extends State<ScannerScreen> {
-  MobileScannerController cameraController = MobileScannerController();
+class _QRViewExampleState extends State<QRViewExample> {
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  QRViewController? controller;
+  Barcode? result;
 
-  void _barcodeDetected(BarcodeCapture capture) {
-    final Barcode? barcode = capture.barcodes.first;
-    if (barcode != null) {
-      final String code = barcode.rawValue ?? 'Unknown';
-      debugPrint('Barcode found! $code');
-    } else {
-      debugPrint('Failed to scan Barcode');
+  @override
+  void reassemble() {
+    super.reassemble();
+    if (Platform.isAndroid) {
+      controller!.pauseCamera();
     }
+    controller!.resumeCamera();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: MobileScanner(
-            controller: cameraController,
-            onDetect: _barcodeDetected,
+    return Scaffold(
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            flex: 5,
+            child: QRView(
+              key: qrKey,
+              onQRViewCreated: _onQRViewCreated,
+            ),
           ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.switch_camera),
-              onPressed: () => cameraController.switchCamera(),
+          Expanded(
+            flex: 1,
+            child: Center(
+              child: (result != null)
+                  ? Text(
+                      'Barcode Type: ${result!.format} Data: ${result?.code}')
+                  : Text('Scan a code'),
             ),
-            IconButton(
-              icon: const Icon(Icons.flash_on),
-              onPressed: () => cameraController.toggleTorch(),
-            ),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () => cameraController.stop(),
-              child: const Text('Stop Scanning'),
-            ),
-            ElevatedButton(
-              onPressed: () => cameraController.start(),
-              child: const Text('Start Scanning'),
-            ),
-          ],
-        ),
-      ],
+          )
+        ],
+      ),
     );
+  }
+
+  void _onQRViewCreated(QRViewController controller) {
+    this.controller = controller;
+    controller.scannedDataStream.listen((scanData) {
+      setState(() {
+        result = scanData;
+      });
+      GoNavigate.pushNamedWithArguments('/insert-name', {'name': result?.code});
+      if (result!.code!.isNotEmpty) {
+        controller.stopCamera();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
   }
 }

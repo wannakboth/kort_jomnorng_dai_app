@@ -7,6 +7,8 @@ Python
 # flask run --reload
 # flask run --reload --host=YOUR IP
 
+# python app.py
+
 
 Flutter
 # dart run pc_server.dart
