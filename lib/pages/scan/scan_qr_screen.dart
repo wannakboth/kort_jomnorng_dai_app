@@ -6,6 +6,8 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 import '../../widget/go_navigate.dart';
 
 class QRViewExample extends StatefulWidget {
+  const QRViewExample({super.key});
+
   @override
   State<StatefulWidget> createState() => _QRViewExampleState();
 }
@@ -42,7 +44,7 @@ class _QRViewExampleState extends State<QRViewExample> {
               child: (result != null)
                   ? Text(
                       'Barcode Type: ${result!.format} Data: ${result?.code}')
-                  : Text('Scan a code'),
+                  : const Text('Scan a code'),
             ),
           )
         ],
@@ -57,9 +59,7 @@ class _QRViewExampleState extends State<QRViewExample> {
         result = scanData;
       });
       GoNavigate.pushNamedWithArguments('/insert-name', {'name': result?.code});
-      if (result!.code!.isNotEmpty) {
-        controller.stopCamera();
-      }
+      controller.stopCamera();
     });
   }
 

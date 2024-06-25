@@ -67,7 +67,7 @@ class _InsertNameState extends State<InsertName> {
 
       try {
         _showDialog('ជោគជ័យ', 'Status: ${response.status}');
-        log('${response.status}', name: 'Confirm');
+        log(response.status, name: 'Confirm');
       } catch (e) {
         _showDialog('Error', 'Failed to post data: $e');
         log('Failed to send data: $e', name: 'Error');
