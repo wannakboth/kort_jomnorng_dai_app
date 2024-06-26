@@ -183,8 +183,24 @@ def get_local_ip():
             continue
     return '127.0.0.1'  # Default to localhost if no IP found
 
+def get_dynamic_dart_file_path(possible_base_paths):
+    # Get the current user's home directory
+    home_directory = os.path.expanduser('~')
+    
+    for base_path in possible_base_paths:
+        dart_file_path = os.path.join(home_directory, base_path, 'lib', 'ip_address.dart')
+        if os.path.exists(dart_file_path):
+            return dart_file_path
+    
+    raise FileNotFoundError("None of the specified paths exist. Please check the paths.")
+
 def write_ip_to_dart_file(ip_address):
-    dart_file_path = os.path.join('/Users/pwboth/Mobile App/kort_jomnorng_dai_app/lib', 'ip_address.dart')
+    possible_base_paths = [
+        'Mobile App/kort_jomnorng_dai_app',
+        'dev/mobileapp/kort_jomnorng_dai_app',
+    ]
+    
+    dart_file_path = get_dynamic_dart_file_path(possible_base_paths)
     with open(dart_file_path, 'w') as file:
         file.write(f"const String kPcIpAddress = '{ip_address}';\n")
 

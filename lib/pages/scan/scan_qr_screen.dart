@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import '../../widget/app_widget.dart';
 import '../../widget/background.dart';
 import '../../widget/color.dart';
 import '../../widget/go_navigate.dart';
@@ -55,40 +56,83 @@ class _QRViewExampleState extends State<QRViewExample>
   Widget build(BuildContext context) {
     return Background(
       widgets: Scaffold(
-        backgroundColor: AppColor.BLUE.withOpacity(0.5),
+        backgroundColor: AppColor.PRIMARY.withOpacity(0.8),
+        appBar: buildAppBar(),
         body: SafeArea(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Align(
-                alignment: Alignment.centerRight,
-                child: IconButton(
-                  onPressed: () => GoNavigate.goBack(),
-                  icon: Icon(
-                    Icons.close_rounded,
-                    size: 32,
-                    color: AppColor.WHITE,
+              Expanded(
+                flex: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16.0),
+                    child: QRView(
+                      key: qrKey,
+                      onQRViewCreated: _onQRViewCreated,
+                    ),
                   ),
                 ),
               ),
               Expanded(
-                flex: 5,
-                child: QRView(
-                  key: qrKey,
-                  onQRViewCreated: _onQRViewCreated,
-                ),
-              ),
-              Expanded(
                 flex: 1,
-                child: Center(
-                  child: (result != null)
-                      ? Text(
-                          'Barcode Type: ${result!.format} Data: ${result?.code}')
-                      : const Text('Scan a code'),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColor.GREEN_OPACITY,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        padding: const EdgeInsets.all(12),
+                        color: AppColor.WHITE,
+                        iconSize: 32,
+                        icon: Icon(Icons.flip_camera_ios_outlined),
+                        onPressed: () => controller?.flipCamera(),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColor.RED_OPACITY,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        padding: const EdgeInsets.all(12),
+                        color: AppColor.WHITE,
+                        iconSize: 32,
+                        icon: Icon(Icons.flash_on),
+                        onPressed: () => controller?.toggleFlash(),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  AppBar buildAppBar() {
+    return AppBar(
+      elevation: 0,
+      centerTitle: false,
+      backgroundColor: Colors.transparent,
+      leading: BackButton(
+        color: AppColor.WHITE,
+      ),
+      title: Container(
+        margin: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width * 0.1,
+        ),
+        child: AppWidget.name(
+          context,
+          fontSize: 12,
+          imageSize: MediaQuery.of(context).size.width * 0.1,
+          mainAxisAlignment: MainAxisAlignment.start,
         ),
       ),
     );
