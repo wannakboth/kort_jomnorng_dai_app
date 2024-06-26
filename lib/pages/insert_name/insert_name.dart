@@ -90,24 +90,6 @@ class _InsertNameState extends State<InsertName> {
         GoNavigate.pushReplacementNamed('/home');
       },
     );
-    // showDialog(
-    //   context: context,
-    //   builder: (BuildContext context) {
-    //     return AlertDialog(
-    //       title: Text(title),
-    //       content: Text(content),
-    //       actions: [
-    //         TextButton(
-    //           onPressed: () {
-    //             GoNavigate.goBack();
-    //             GoNavigate.goBack();
-    //           },
-    //           child: Text('OK'),
-    //         ),
-    //       ],
-    //     );
-    //   },
-    // );
   }
 
   @override

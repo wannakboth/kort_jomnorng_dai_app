@@ -54,7 +54,7 @@ class Background extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment(0, 1),
                       colors: [
-                        Color(0xff2E7E98),
+                        Color(0xFF357BCC),
                         Color(0xff0F2932),
                       ],
                       tileMode: TileMode.mirror,
