@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import '../../widget/app_widget.dart';
 import '../../widget/background.dart';
@@ -18,11 +20,17 @@ class _QRViewExampleState extends State<QRViewExample>
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   QRViewController? controller;
   Barcode? result;
+  bool showContainer = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    Timer(Duration(milliseconds: 500), () {
+      setState(() {
+        showContainer = true;
+      });
+    });
   }
 
   @override
@@ -56,7 +64,7 @@ class _QRViewExampleState extends State<QRViewExample>
   Widget build(BuildContext context) {
     return Background(
       widgets: Scaffold(
-        backgroundColor: AppColor.PRIMARY.withOpacity(0.8),
+        backgroundColor: Colors.transparent,
         appBar: buildAppBar(),
         body: SafeArea(
           child: Column(
@@ -64,15 +72,48 @@ class _QRViewExampleState extends State<QRViewExample>
             children: [
               Expanded(
                 flex: 4,
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16.0),
-                    child: QRView(
-                      key: qrKey,
-                      onQRViewCreated: _onQRViewCreated,
+                child: Stack(
+                  children: [
+                    AnimatedOpacity(
+                      opacity: showContainer ? 1.0 : 0.0,
+                      duration: Duration(milliseconds: 1200),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(16.0),
+                              child: QRView(
+                                key: qrKey,
+                                onQRViewCreated: _onQRViewCreated,
+                              ),
+                            ),
+                            Container(
+                              height: MediaQuery.of(context).size.height,
+                              width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color: AppColor.PRIMARY.withOpacity(0.2),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
+                    Center(
+                      child: AnimatedOpacity(
+                        opacity: showContainer ? 1.0 : 0.0,
+                        duration: Duration(milliseconds: 1200),
+                        child: Container(
+                          color: Colors.transparent,
+                          child: Lottie.asset(
+                            'assets/icons/scanQR.json',
+                            width: MediaQuery.of(context).size.width * 0.6,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Expanded(
