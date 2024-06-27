@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:khmer_fonts/khmer_fonts.dart';
+import 'package:quickalert/quickalert.dart';
 
 import '../../widget/app_widget.dart';
 import '../../widget/background.dart';
@@ -147,11 +148,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           onPressed: () {
-                            // setState(() {
-                            //   _billNumberTEC.text = '';
-                            // });
-                            // _billNumberController.billNumber.value =
-                            //     '';
                             Navigator.of(context).pop();
                           },
                         ),
@@ -169,9 +165,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           onPressed: () {
-                            // _billNumberController.billNumber.value =
-                            //     _billNumberTEC.text;
-                            // _billNumberTEC.clear();
                             GoNavigate.goBack();
                             GoNavigate.pushNamedWithArguments('/insert-name',
                                 {'name': controller.text.toString()});
@@ -199,6 +192,18 @@ class _HomeScreenState extends State<HomeScreen> {
         Container(),
         Container(),
       ],
+    );
+  }
+
+  _showDialog() {
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.custom,
+      confirmBtnText: 'យល់ព្រម',
+      onConfirmBtnTap: () {
+        GoNavigate.goBack();
+        GoNavigate.pushReplacementNamed('/home');
+      },
     );
   }
 

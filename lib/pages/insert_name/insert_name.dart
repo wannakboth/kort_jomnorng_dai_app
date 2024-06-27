@@ -6,6 +6,7 @@ import 'package:kort_jomnorng_dai_app/widget/stroke_text.dart';
 import 'package:quickalert/quickalert.dart';
 import '../../service/controller.dart';
 import '../../service/create_model.dart';
+import '../../widget/app_widget.dart';
 import '../../widget/background.dart';
 import '../../widget/button.dart';
 import '../../widget/color.dart';
@@ -59,37 +60,38 @@ class _InsertNameState extends State<InsertName> {
       final CreateResponse response =
           await apiController.postInsertAmount(transaction);
 
-      // if (response.errorCode == 201) {
-      //   print('yes');
-      // } else {
-      //   print('no');
-      // }
+      if (response.errorCode == 201) {
+        print('yes');
+      } else {
+        print('no');
+      }
 
       try {
-        _showDialog('ជោគជ័យ', 'Status: ${response.status}');
+        AppWidget.showDialog(
+          context,
+          title: 'ជោគជ័យ',
+          content: 'បញ្ចូលចំណងដៃបានជោគជ័យ!',
+          alertType: QuickAlertType.success,
+        );
         log(response.status, name: 'Confirm');
       } catch (e) {
-        _showDialog('Error', 'Failed to post data: $e');
+        AppWidget.showDialog(
+          context,
+          title: 'Error',
+          content: 'Failed to post data: $e',
+          alertType: QuickAlertType.error,
+        );
         log('Failed to send data: $e', name: 'Error');
       }
     } else {
-      _showDialog('Error', 'Please fill in all fields');
+      AppWidget.showDialog(
+        context,
+        title: 'Error',
+        content: 'Please fill in all fields',
+        alertType: QuickAlertType.error,
+      );
       log('Validation failed', name: 'Validation');
     }
-  }
-
-  void _showDialog(String title, String content) {
-    QuickAlert.show(
-      context: context,
-      type: QuickAlertType.success,
-      title: 'ជោគជ័យ',
-      text: 'បញ្ចូលចំណងដៃបានជោគជ័យ!',
-      confirmBtnText: 'យល់ព្រម',
-      onConfirmBtnTap: () {
-        GoNavigate.goBack();
-        GoNavigate.pushReplacementNamed('/home');
-      },
-    );
   }
 
   @override

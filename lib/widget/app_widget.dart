@@ -1,9 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
 
 import 'color.dart';
+import 'go_navigate.dart';
 import 'stroke_text.dart';
 
 class AppWidget {
+  static showDialog(BuildContext context, {String? title, String? content, QuickAlertType? alertType}) {
+    QuickAlert.show(
+      context: context,
+      type: alertType!,
+      title: title,
+      text: content,
+      confirmBtnText: 'យល់ព្រម',
+      onConfirmBtnTap: () {
+        GoNavigate.goBack();
+        GoNavigate.pushReplacementNamed('/home');
+      },
+    );
+  }
+
   static name(context, {double? fontSize, double? imageSize, MainAxisAlignment? mainAxisAlignment}) {
     return Row(
       mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.center,
