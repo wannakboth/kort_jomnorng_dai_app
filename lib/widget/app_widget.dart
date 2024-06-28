@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:khmer_fonts/khmer_fonts.dart';
 import 'package:quickalert/quickalert.dart';
 
 import 'color.dart';
@@ -17,6 +19,12 @@ class AppWidget {
         GoNavigate.goBack();
         GoNavigate.pushReplacementNamed('/home');
       },
+      confirmBtnTextStyle: TextStyle(
+        fontFamily: KhmerFonts.dangrek,
+        fontSize: 12.sp,
+        package: 'khmer_fonts',
+        color: AppColor.WHITE,
+      ),
     );
   }
 

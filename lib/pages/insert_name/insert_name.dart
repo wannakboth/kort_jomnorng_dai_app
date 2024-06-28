@@ -23,9 +23,6 @@ class InsertName extends StatefulWidget {
 }
 
 class _InsertNameState extends State<InsertName> {
-  // final inputFocusNode = FocusNode();
-  // final inputController = TextEditingController();
-
   String amountValue = "0";
   String currency = '';
 
@@ -47,7 +44,6 @@ class _InsertNameState extends State<InsertName> {
 
   Future<void> _postData() async {
     final args = ModalRoute.of(context)!.settings.arguments as Map;
-    // final argName = args[name];
 
     if (args['name'] != '' && amountValue != '0') {
       final transaction = Transaction(
@@ -60,17 +56,10 @@ class _InsertNameState extends State<InsertName> {
       final CreateResponse response =
           await apiController.postInsertAmount(transaction);
 
-      if (response.errorCode == 201) {
-        print('yes');
-      } else {
-        print('no');
-      }
-
       try {
         AppWidget.showDialog(
           context,
           title: 'ជោគជ័យ',
-          content: 'បញ្ចូលចំណងដៃបានជោគជ័យ!',
           alertType: QuickAlertType.success,
         );
         log(response.status, name: 'Confirm');

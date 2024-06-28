@@ -40,9 +40,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   buildBody() {
-    final controller = TextEditingController();
-    final focus = FocusNode();
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -73,106 +70,8 @@ class _HomeScreenState extends State<HomeScreen> {
               backgroundColor: AppColor.GREEN_OPACITY,
               icon: AppIcon.card(),
               onTap: () {
-                // GoNavigate.pushNamed('/insert-name');
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: SizedBox(
-                        width: MediaQuery.sizeOf(context).width * 0.8,
-                        child: StrokeText(
-                          text: 'ឈ្មោះភ្ញៀវ',
-                          textColor: AppColor.BLUE,
-                          size: 18,
-                          strokeColor: Colors.transparent,
-                        ),
-                      ),
-                      content: TextField(
-                        controller: controller,
-                        focusNode: focus,
-                        onSubmitted: (value) {
-                          setState(() {
-                            focus.unfocus();
-                          });
-                        },
-                        onTapOutside: (event) {
-                          setState(() {
-                            focus.unfocus();
-                            FocusScopeNode currentFocus =
-                                FocusScope.of(context);
-                            if (!currentFocus.hasPrimaryFocus &&
-                                currentFocus.focusedChild != null) {
-                              FocusManager.instance.primaryFocus?.unfocus();
-                            }
-                          });
-                        },
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.all(10),
-                          labelStyle: TextStyle(
-                            fontFamily: KhmerFonts.fasthand,
-                            fontSize: 11.sp,
-                            package: 'khmer_fonts',
-                            color: AppColor.BLUE,
-                          ),
-                          hintText: 'បញ្ចូលឈ្មោះភ្ញៀវ...',
-                          fillColor: Colors.white,
-                          filled: true,
-                          hintStyle: TextStyle(
-                            fontFamily: KhmerFonts.fasthand,
-                            fontSize: 11.sp,
-                            package: 'khmer_fonts',
-                            color: AppColor.BLUE_OPACITY_70,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: AppColor.BLUE,
-                              width: 1,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: AppColor.PRIMARY,
-                              width: 1.5,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                      actions: <Widget>[
-                        TextButton(
-                          child: Text(
-                            'clear'.toUpperCase(),
-                            style: TextStyle(
-                              color: AppColor.PRIMARY,
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        TextButton(
-                          style: TextButton.styleFrom(
-                            backgroundColor: AppColor.PRIMARY,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: Text(
-                            'okay'.toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          onPressed: () {
-                            GoNavigate.goBack();
-                            GoNavigate.pushNamedWithArguments('/insert-name',
-                                {'name': controller.text.toString()});
-                          },
-                        ),
-                      ],
-                    );
-                  },
+                DismissKeyboard(
+                  child: _showDialog(),
                 );
               },
             ),
@@ -199,10 +98,75 @@ class _HomeScreenState extends State<HomeScreen> {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.custom,
-      confirmBtnText: 'យល់ព្រម',
-      onConfirmBtnTap: () {
-        GoNavigate.goBack();
-        GoNavigate.pushReplacementNamed('/home');
+      barrierDismissible: true,
+      customAsset: 'assets/icons/love.gif',
+      backgroundColor: Colors.pink.withOpacity(0.05),
+      widget: TextField(
+        controller: controller,
+        focusNode: focus,
+        onSubmitted: (value) {
+          setState(() {
+            focus.unfocus();
+          });
+        },
+        onTapOutside: (event) {
+          setState(() {
+            focus.unfocus();
+            FocusScopeNode currentFocus = FocusScope.of(context);
+            if (!currentFocus.hasPrimaryFocus &&
+                currentFocus.focusedChild != null) {
+              FocusManager.instance.primaryFocus?.unfocus();
+            }
+          });
+        },
+        decoration: InputDecoration(
+          contentPadding: const EdgeInsets.all(10),
+          labelStyle: TextStyle(
+            fontFamily: KhmerFonts.fasthand,
+            fontSize: 11.sp,
+            package: 'khmer_fonts',
+            color: AppColor.BLUE,
+          ),
+          hintText: 'បញ្ចូលឈ្មោះភ្ញៀវ...',
+          fillColor: Colors.white,
+          filled: true,
+          hintStyle: TextStyle(
+            fontFamily: KhmerFonts.fasthand,
+            fontSize: 12.sp,
+            package: 'khmer_fonts',
+            color: AppColor.BLUE_OPACITY_70,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: AppColor.BLUE,
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: AppColor.PRIMARY,
+              width: 1.5,
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+      confirmBtnText: 'បញ្ចូល',
+      confirmBtnTextStyle: TextStyle(
+        fontFamily: KhmerFonts.dangrek,
+        fontSize: 12.sp,
+        package: 'khmer_fonts',
+        color: AppColor.WHITE,
+      ),
+      confirmBtnColor: AppColor.RED_OPACITY,
+      onConfirmBtnTap: () async {
+        if (controller.text.isNotEmpty) {
+          GoNavigate.goBack();
+          await Future.delayed(const Duration(milliseconds: 500));
+          GoNavigate.pushNamedWithArguments(
+              '/insert-name', {'name': controller.text.toString()});
+        }
       },
     );
   }
