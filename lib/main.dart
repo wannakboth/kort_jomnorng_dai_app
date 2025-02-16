@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
-import 'routes/routes.dart';
-import 'widget/go_navigate.dart';
+import 'pages/home/home_screen.dart';
+import 'service/gsheet/google_sheet.service.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  Get.put(GoogleSheetsService()); // Register service at app start
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -13,19 +15,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(360, 690),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (_, child) {
-        ScreenUtil.init(_);
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          navigatorKey: GoNavigate.navigatorKey,
-          initialRoute: '/home',
-          routes: routes,
-        );
-      },
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: HomeScreen(),
     );
   }
 }
+

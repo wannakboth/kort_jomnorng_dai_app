@@ -10,6 +10,7 @@
 analyzer:
   errors:
     avoid_print: ignore
+    deprecated_member_use: ignore
     library_private_types_in_public_api: ignore
     prefer_const_constructors: ignore
     unnecessary_nullable_for_final_variable_declarations: ignore

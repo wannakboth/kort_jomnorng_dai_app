@@ -13,7 +13,7 @@ class AppColor {
   static final GREEN = const Color(0xff227E3C);
 
   // opacity
-  static final PRIMARY_OPACITY = const Color(0xff357BCC).withOpacity(0.4);
+  static final PRIMARY_OPACITY = const Color(0xff357BCC).withOpacity(0.6);
   static final RED_OPACITY = const Color(0xffDC507A).withOpacity(0.7);
   static final GREEN_OPACITY = const Color(0xff227E3C).withOpacity(0.7);
   static final BLUE_OPACITY_40 = const Color(0xff062181).withOpacity(0.4);

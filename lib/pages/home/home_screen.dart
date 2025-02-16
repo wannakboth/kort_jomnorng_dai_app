@@ -1,242 +1,280 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:khmer_fonts/khmer_fonts.dart';
-import 'package:quickalert/quickalert.dart';
 
-import '../../widget/app_widget.dart';
-import '../../widget/background.dart';
-import '../../widget/button.dart';
+import '../../service/gsheet/google_sheet.service.dart';
 import '../../widget/color.dart';
-import '../../widget/dismiss_keyboad.dart';
-import '../../widget/format_khmer_date.dart';
-import '../../widget/go_navigate.dart';
-import '../../widget/icon.dart';
-import '../../widget/stroke_text.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final controller = TextEditingController();
-  final focus = FocusNode();
+  final GoogleSheetsService _sheetsService = Get.find();
+  final TextEditingController noController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController statusController = TextEditingController();
+  final TextEditingController rielController = TextEditingController();
+  final TextEditingController dollarController = TextEditingController();
+  final TextEditingController searchController = TextEditingController();
+
+  List<Map<String, dynamic>> fetchedData = [];
+  String searchMessage = "Type a keyword to search or press 'Show All'";
+
+  /// Fetch search results from Google Sheets
+  void fetchSearchResults() async {
+    String query = searchController.text.trim();
+
+    if (query.isEmpty) {
+      // Show all items if search is empty
+      fetchAllData();
+      return;
+    }
+
+    var data = await _sheetsService.fetchData(searchQuery: query);
+
+    setState(() {
+      fetchedData = data;
+      searchMessage = data.isEmpty ? "No records found" : "";
+    });
+  }
+
+  /// Fetch all data from Google Sheets
+  void fetchAllData() async {
+    var data =
+        await _sheetsService.fetchData(); // No search query to get all items
+
+    setState(() {
+      fetchedData = data;
+      searchMessage = data.isEmpty ? "No records found" : "";
+    });
+  }
+
+  /// Fill text fields with selected search result
+  void selectItem(Map<String, dynamic> item) {
+    setState(() {
+      noController.text = item['no'].toString();
+      nameController.text = item['name'].toString();
+      statusController.text = item['status'].toString();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Background(
-      widgets: DismissKeyboard(
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          resizeToAvoidBottomInset: false,
-          appBar: buildAppBar(),
-          drawer: buildDrawer(context),
-          body: buildBody(),
-        ),
-      ),
-    );
-  }
-
-  buildBody() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
+    return Scaffold(
+      body: Center(
+        child: Stack(
           children: [
-            AppWidget.name(context),
-            date(),
-          ],
-        ),
-        AppButton.bigButton(
-          context,
-          text: 'ស្កេន QR Code',
-          backgroundColor: AppColor.BLUE.withOpacity(0.5),
-          widget: Icon(
-            Icons.qr_code_rounded,
-            color: AppColor.WHITE,
-            size: 56.sp,
-          ),
-          onTap: () {
-            GoNavigate.pushNamed('/scan-qr');
-          },
-        ),
-        Column(
-          children: [
-            AppButton.longButton(
-              context,
-              text: 'មិនមានធៀប',
-              backgroundColor: AppColor.GREEN_OPACITY,
-              icon: AppIcon.card(),
-              onTap: () {
-                DismissKeyboard(
-                  child: _showDialog(),
-                );
-              },
-            ),
-            SizedBox(height: 12.h),
-            AppButton.longButton(
-              context,
-              text: 'មើលរបាយការណ៍',
-              icon: AppIcon.report(),
-              backgroundColor: AppColor.RED_OPACITY,
-              onTap: () {
-                GoNavigate.pushNamed('/report');
-              },
-            ),
-          ],
-        ),
-        Container(),
-        Container(),
-        Container(),
-      ],
-    );
-  }
-
-  _showDialog() {
-    QuickAlert.show(
-      context: context,
-      type: QuickAlertType.custom,
-      barrierDismissible: true,
-      customAsset: 'assets/icons/love.gif',
-      backgroundColor: Colors.pink.withOpacity(0.05),
-      widget: TextField(
-        controller: controller,
-        focusNode: focus,
-        onSubmitted: (value) {
-          setState(() {
-            focus.unfocus();
-          });
-        },
-        onTapOutside: (event) {
-          setState(() {
-            focus.unfocus();
-            FocusScopeNode currentFocus = FocusScope.of(context);
-            if (!currentFocus.hasPrimaryFocus &&
-                currentFocus.focusedChild != null) {
-              FocusManager.instance.primaryFocus?.unfocus();
-            }
-          });
-        },
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.all(10),
-          labelStyle: TextStyle(
-            fontFamily: KhmerFonts.fasthand,
-            fontSize: 11.sp,
-            package: 'khmer_fonts',
-            color: AppColor.BLUE,
-          ),
-          hintText: 'បញ្ចូលឈ្មោះភ្ញៀវ...',
-          fillColor: Colors.white,
-          filled: true,
-          hintStyle: TextStyle(
-            fontFamily: KhmerFonts.fasthand,
-            fontSize: 12.sp,
-            package: 'khmer_fonts',
-            color: AppColor.BLUE_OPACITY_70,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: AppColor.BLUE,
-              width: 1,
-            ),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: AppColor.PRIMARY,
-              width: 1.5,
-            ),
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      ),
-      confirmBtnText: 'បញ្ចូល',
-      confirmBtnTextStyle: TextStyle(
-        fontFamily: KhmerFonts.dangrek,
-        fontSize: 12.sp,
-        package: 'khmer_fonts',
-        color: AppColor.WHITE,
-      ),
-      confirmBtnColor: AppColor.RED_OPACITY,
-      onConfirmBtnTap: () async {
-        if (controller.text.isNotEmpty) {
-          GoNavigate.goBack();
-          await Future.delayed(const Duration(milliseconds: 500));
-          GoNavigate.pushNamedWithArguments(
-              '/insert-name', {'name': controller.text.toString()});
-        }
-      },
-    );
-  }
-
-  date() {
-    return Container(
-      alignment: Alignment.center,
-      margin: const EdgeInsets.only(top: 12),
-      child: StrokeText(
-        text: formatKhmerDate(),
-        size: 10.sp,
-        textAlign: TextAlign.center,
-        textColor: AppColor.BLUE,
-        strokeColor: AppColor.WHITE_70,
-      ),
-    );
-  }
-
-  buildDrawer(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          const DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.blue,
-            ),
-            child: Text(
-              'Drawer Header',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
+            Positioned.fill(
+              child: Image.asset(
+                'assets/background/background.JPG', // Your background image
+                fit: BoxFit.cover, // Make it cover the entire screen
               ),
             ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Home'),
-            onTap: () {
-              // Handle the tap
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Settings'),
-            onTap: () {
-              // Handle the tap
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.contact_mail),
-            title: const Text('Contact'),
-            onTap: () {
-              // Handle the tap
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
-    );
-  }
+            Container(
+              color: AppColor.SECONDARY.withOpacity(0.75),
+            ),
+            SafeArea(
+              child: Column(
+                children: [
+                  SizedBox(height: 20),
+                  Text(
+                    'កត់ចំណងដៃ',
+                    style: TextStyle(
+                      fontFamily: KhmerFonts.fasthand,
+                      fontSize: 24,
+                      package: 'khmer_fonts',
+                      color: AppColor.WHITE,
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppColor.WHITE.withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding:
+                              const EdgeInsetsDirectional.fromSTEB(8, 0, 8, 16),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(right: 12),
+                                child: Icon(
+                                  Icons.alternate_email_rounded,
+                                  color: AppColor.WHITE,
+                                  size: 24,
+                                ),
+                              ),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: nameController,
+                                  // focusNode: controller.usernameFN,
+                                  obscureText: false,
+                                  textInputAction: TextInputAction.next,
+                                  decoration: InputDecoration(
+                                    labelStyle: TextStyle(
+                                      color: AppColor.WHITE,
+                                      fontSize: 14,
+                                    ),
+                                    hintText: 'Username',
+                                    hintStyle: TextStyle(
+                                      color: AppColor.WHITE,
+                                      fontSize: 14,
+                                    ),
+                                    enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: AppColor.WHITE,
+                                        width: 1,
+                                      ),
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(4.0),
+                                        topRight: Radius.circular(4.0),
+                                      ),
+                                    ),
+                                    focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        // color: AppColors.primaryText,
+                                        width: 1,
+                                      ),
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(4.0),
+                                        topRight: Radius.circular(4.0),
+                                      ),
+                                    ),
+                                    errorBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: AppColor.RED,
+                                        width: 1,
+                                      ),
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(4.0),
+                                        topRight: Radius.circular(4.0),
+                                      ),
+                                    ),
+                                    focusedErrorBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: AppColor.RED,
+                                        width: 1,
+                                      ),
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(4.0),
+                                        topRight: Radius.circular(4.0),
+                                      ),
+                                    ),
+                                  ),
+                                  style: TextStyle(
+                                    color: AppColor.WHITE,
+                                    fontSize: 14,
+                                  ),
+                                  onEditingComplete: () {
+                                    // FocusScope.of(Get.context!)
+                                    //     .requestFocus(controller.passwordFN);
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        TextField(
+                          controller: noController,
+                          decoration: InputDecoration(labelText: "លេខ"),
+                        ),
+                        TextField(
+                          controller: nameController,
+                          decoration: InputDecoration(labelText: "ឈ្មោះ"),
+                        ),
+                        TextField(
+                          controller: statusController,
+                          decoration: InputDecoration(labelText: "ចំណាត់"),
+                        ),
+                        // TextField(
+                        //   controller: rielController,
+                        //   decoration: InputDecoration(labelText: "Riel"),
+                        // ),
+                        // TextField(
+                        //   controller: dollarController,
+                        //   decoration: InputDecoration(labelText: "Dollar"),
+                        // ),
+                        SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () {
+                            _sheetsService.insertData(
+                                noController.text,
+                                nameController.text,
+                                statusController.text,
+                                rielController.text,
+                                dollarController.text);
+                          },
+                          child: Text("Insert Data"),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
 
-  AppBar buildAppBar() {
-    return AppBar(
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      leading: DrawerButton(
-        color: AppColor.WHITE,
+                  // Search Bar with "Show All" Button
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: searchController,
+                          decoration: InputDecoration(
+                            labelText: "Search",
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.search),
+                              onPressed: fetchSearchResults,
+                            ),
+                          ),
+                          onChanged: (value) {
+                            if (value.isEmpty) fetchAllData();
+                          },
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: fetchAllData,
+                        child: Text("Show All"),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+
+                  // Search Results or Messages
+                  Expanded(
+                    child: fetchedData.isEmpty
+                        ? Center(
+                            child: Text(
+                              searchMessage,
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.grey),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: fetchedData.length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                title: Text(fetchedData[index]['name']),
+                                subtitle: Text(
+                                    "លេខ: ${fetchedData[index]['no']} | ចំណាត់: ${fetchedData[index]['status']}"),
+                                onTap: () => selectItem(fetchedData[
+                                    index]), // Click to fill text fields
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
