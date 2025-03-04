@@ -1,2 +1,2 @@
 const String appScriptUrl =
-    "https://script.google.com/macros/s/AKfycbyq-GBya2eBxEFLWKUuGeJkF_sHj8mTWQodNsS4Xde1wjFDXXGEJ90bGQLXZgzOHYi-qw/exec";
+    "https://script.google.com/macros/s/AKfycbzWaQWB-HJh7GKH9KWTQ6cSLT5zbOsjfUiVLrGL0AldT6vhf6Nk6tyn39FsaeqkEfKmow/exec";
