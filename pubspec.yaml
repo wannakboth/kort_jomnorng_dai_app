@@ -3,6 +3,8 @@ description: "A new Flutter project."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 version: 1.0.0+1
+# after change version don't forget to run command below
+### dart generate_version.dart ###
 
 environment:
   sdk: '>=3.4.0 <4.0.0'

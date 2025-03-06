@@ -7,6 +7,7 @@ class AppColor {
   static final SECONDARY = const Color(0xFF2E5098);
   static final BLUE = const Color(0xff062181);
   static final LIGHTBLUE = const Color(0xFF9BB2F0);
+  static final LIGHTBLUE1 = const Color(0xFF9FE0FA);
   static final WHITE = const Color(0xffFFFFFF);
   static final RED = const Color(0xffDC507A);
   static final BLACK = const Color(0xff383D3F);

@@ -97,12 +97,26 @@ class GoogleSheetsService extends GetxController {
     return [];
   }
 
+//   String formatMoney(num amount, {bool isDollar = false}) {
+//   final formatter = isDollar
+//       ? NumberFormat("#,##0.00", "km_KH") // USD: #,###.00
+//       : NumberFormat("#,##0", "km_KH"); // KHR: #,###,###
+
+//   return formatter.format(amount);
+// }
+  String toKhmerNumber(String number) {
+    const khmerDigits = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
+    return number.split('').map((char) {
+      if (RegExp(r'[0-9]').hasMatch(char)) {
+        return khmerDigits[int.parse(char)];
+      }
+      return char;
+    }).join('');
+  }
+
   String formatMoney(num amount, {bool isDollar = false}) {
-  final formatter = isDollar
-      ? NumberFormat("#,##0.00", "km_KH") // USD: #,###.00
-      : NumberFormat("#,##0", "km_KH"); // KHR: #,###,###
-
-  return formatter.format(amount);
-}
-
+    final formatted =
+        NumberFormat(isDollar ? "#,##0.00" : "#,###").format(amount);
+    return toKhmerNumber(formatted); // Convert numbers to Khmer numerals
+  }
 }

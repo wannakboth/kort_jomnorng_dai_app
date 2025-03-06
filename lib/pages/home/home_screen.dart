@@ -5,6 +5,7 @@ import 'package:khmer_fonts/khmer_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
 import '../../service/gsheet/google_sheet.service.dart';
+import '../../version.dart';
 import '../../widget/color.dart';
 import '../../widget/dismiss_keyboad.dart';
 
@@ -341,74 +342,87 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 Expanded(
                                   child: Container(
-                                      padding: const EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
-                                        color: AppColor.WHITE_60,
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: textField(
-                                              label: 'ស្វែងរក...',
-                                              controller: searchController,
-                                              focusNode: searchFN,
-                                              onChanged: (value) {
-                                                if (value.isNotEmpty)
-                                                  fetchSearchResults();
-                                              },
-                                            ),
-                                          ),
-                                          SizedBox(width: 8),
-                                          ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: AppColor.BLUE,
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 10, vertical: 12),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                            ),
-                                            onPressed: () {
-                                              searchController.clear();
-                                              fetchAllData(); // Fetch all records when button is clicked
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: AppColor.WHITE_60,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: textField(
+                                            label: 'ស្វែងរក...',
+                                            controller: searchController,
+                                            focusNode: searchFN,
+                                            onChanged: (value) {
+                                              if (value.isNotEmpty)
+                                                fetchSearchResults();
                                             },
-                                            child: Text(
-                                              'ទាំងអស់', // "Show All" in Khmer
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 14,
-                                                fontFamily:
-                                                    KhmerFonts.preahvihear,
-                                                package: 'khmer_fonts',
-                                              ),
+                                          ),
+                                        ),
+                                        SizedBox(width: 8),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppColor.BLUE,
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 12),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
                                           ),
-                                        ],
-                                      )),
+                                          onPressed: () {
+                                            searchController.clear();
+                                            fetchAllData(); // Fetch all records when button is clicked
+                                          },
+                                          child: Text(
+                                            'ទាំងអស់', // "Show All" in Khmer
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                              fontFamily:
+                                                  KhmerFonts.preahvihear,
+                                              package: 'khmer_fonts',
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: toggleSearch,
+                                  icon: Icon(
+                                    Icons.close_rounded,
+                                    size: 26,
+                                    color: AppColor.WHITE,
+                                  ),
                                 ),
                               ],
                             )
-                          : Text(
-                              'កត់ចំណងដៃ',
-                              key: ValueKey("titleText"),
-                              style: TextStyle(
-                                fontSize: 28,
-                                color: AppColor.WHITE,
-                                fontFamily: KhmerFonts.preahvihear,
-                                package: 'khmer_fonts',
-                              ),
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'កត់ចំណងដៃ',
+                                  key: ValueKey("titleText"),
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    color: AppColor.WHITE,
+                                    fontFamily: KhmerFonts.preahvihear,
+                                    package: 'khmer_fonts',
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: toggleSearch,
+                                  icon: Icon(
+                                    Icons.search_rounded,
+                                    size: 26,
+                                    color: AppColor.WHITE,
+                                  ),
+                                ),
+                              ],
                             ),
-                    ),
-                  ),
-
-                  IconButton(
-                    onPressed: toggleSearch,
-                    icon: Icon(
-                      isSearching ? Icons.close_rounded : Icons.search_rounded,
-                      size: 26,
-                      color: AppColor.WHITE,
                     ),
                   ),
 
@@ -441,8 +455,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ConnectionState.waiting) {
                                     return Center(
                                       key: ValueKey("loading"),
-                                      child: SizedBox(
+                                      child: Container(
                                         height: 42,
+                                        margin: const EdgeInsets.only(top: 16),
                                         child: loading(),
                                       ),
                                     );
@@ -480,22 +495,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                       String moneyText = "";
                                       if ((fetchedData[index]['riel'] ?? 0) > 0)
                                         moneyText +=
-                                            "៛${fetchedData[index]['riel']} ";
+                                            '៛ ${_sheetsService.formatMoney(double.parse('${fetchedData[index]['riel']}'))}';
                                       if ((fetchedData[index]['dollar'] ??
                                               0.0) >
                                           0)
                                         moneyText +=
-                                            "\$${fetchedData[index]['dollar']} ";
+                                            '\$ ${_sheetsService.formatMoney(double.parse('${fetchedData[index]['dollar']}'), isDollar: true)}';
                                       if ((fetchedData[index]['khqrRiel'] ??
                                               0) >
                                           0)
                                         moneyText +=
-                                            "KHQR ៛${fetchedData[index]['khqrRiel']} ";
+                                            "  ៛ ${_sheetsService.formatMoney(double.parse('${fetchedData[index]['khqrRiel']}'))}";
                                       if ((fetchedData[index]['khqrDollar'] ??
                                               0.0) >
                                           0)
                                         moneyText +=
-                                            "KHQR \$${fetchedData[index]['khqrDollar']} ";
+                                            "  \$ ${_sheetsService.formatMoney(double.parse('${fetchedData[index]['khqrDollar']}'), isDollar: true)}";
 
                                       return ListTile(
                                         onTap: isInserted
@@ -552,16 +567,50 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                             // Display money only if it is not empty
                                             if (moneyText.isNotEmpty)
-                                              Text(
-                                                "💰 $moneyText",
-                                                style: TextStyle(
-                                                  color: Colors.greenAccent,
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontFamily:
-                                                      KhmerFonts.preahvihear,
-                                                  package: 'khmer_fonts',
-                                                ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  if ((fetchedData[index]
+                                                                  ['riel'] ??
+                                                              0) >
+                                                          0 ||
+                                                      (fetchedData[index]
+                                                                  ['dollar'] ??
+                                                              0.0) >
+                                                          0)
+                                                    Text(
+                                                      "💰  ",
+                                                    ),
+                                                  if ((fetchedData[index][
+                                                                  'khqrRiel'] ??
+                                                              0) >
+                                                          0 ||
+                                                      (fetchedData[index][
+                                                                  'khqrDollar'] ??
+                                                              0.0) >
+                                                          0)
+                                                    Image.asset(
+                                                      'assets/icons/khqr_logo.png',
+                                                      height: 10,
+                                                      color: AppColor.WHITE,
+                                                    ),
+                                                  Text(
+                                                    moneyText,
+                                                    style: TextStyle(
+                                                      color:
+                                                          AppColor.LIGHTBLUE1,
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontFamily: KhmerFonts
+                                                          .preahvihear,
+                                                      package: 'khmer_fonts',
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                           ],
                                         ),
@@ -697,16 +746,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                         InkWell(
                                           onTap: () {
                                             setState(() {
-                                              selectedStatus = selectedStatus ==
-                                                      'KHQR'
-                                                  ? ''
-                                                  : 'KHQR'; // ✅ Toggle selection
+                                              selectedStatus =
+                                                  selectedStatus == 'KHQR'
+                                                      ? ''
+                                                      : 'KHQR';
                                             });
                                           },
                                           child: AnimatedSwitcher(
-                                            duration: Duration(
-                                                milliseconds:
-                                                    300), // ✅ Smooth transition
+                                            duration:
+                                                Duration(milliseconds: 300),
                                             transitionBuilder: (Widget child,
                                                 Animation<double> animation) {
                                               return ScaleTransition(
@@ -895,6 +943,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   : dollarController,
                                               focusNode:
                                                   isRiel ? rielFN : dollarFN,
+                                              keyboardType:
+                                                  TextInputType.number,
                                             ),
                                           ),
                                         ),
@@ -965,6 +1015,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ],
                                     ),
                                   ),
+                                  SizedBox(height: 18),
+                                  Center(
+                                    child: Text(
+                                      'កម្មវិធីជំនាន់ទី ${_sheetsService.toKhmerNumber(appVersion)}',
+                                      style: TextStyle(
+                                        color: AppColor.WHITE,
+                                        fontSize: 18,
+                                        fontFamily: KhmerFonts.preahvihear,
+                                        package: 'khmer_fonts',
+                                      ),
+                                    ),
+                                  )
                                 ],
                               ),
                       ),
@@ -1021,6 +1083,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Function(String)? onChanged,
     Function(String)? onFieldSubmitted,
     Function()? onEditingComplete,
+    TextInputType? keyboardType,
   }) {
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: controller,
@@ -1030,7 +1093,7 @@ class _HomeScreenState extends State<HomeScreen> {
           controller: controller,
           focusNode: focusNode,
           textInputAction: TextInputAction.next,
-          keyboardType: TextInputType.number,
+          keyboardType: keyboardType ?? TextInputType.text,
           decoration: InputDecoration(
             labelStyle: TextStyle(
               color: AppColor.WHITE,
