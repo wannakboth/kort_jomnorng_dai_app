@@ -20,14 +20,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final GoogleSheetsService _sheetsService = Get.put(GoogleSheetsService());
   final TextEditingController noController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
-  // We no longer need the statusController since we'll use radio buttons.
-  // final TextEditingController statusController = TextEditingController();
   final TextEditingController rielController = TextEditingController();
   final TextEditingController dollarController = TextEditingController();
   final TextEditingController searchController = TextEditingController();
 
   final FocusNode nameFN = FocusNode();
-  // final FocusNode statusFN = FocusNode();
   final FocusNode rielFN = FocusNode();
   final FocusNode dollarFN = FocusNode();
   final FocusNode searchFN = FocusNode();
@@ -273,6 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
       nameController.clear();
       rielController.clear();
       dollarController.clear();
+      selectedStatus = 'ផ្សេងៗ';
       isKHQR = false;
       isRiel = true;
     } catch (e) {
@@ -357,6 +355,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                             onChanged: (value) {
                                               if (value.isNotEmpty)
                                                 fetchSearchResults();
+                                            },
+                                            onFieldSubmitted: (value) {
+                                              if (value.isNotEmpty)
+                                                fetchSearchResults();
+                                            },
+                                            onEditingComplete: () {
+                                              searchFN.unfocus();
                                             },
                                           ),
                                         ),
@@ -563,6 +568,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 fontFamily:
                                                     KhmerFonts.preahvihear,
                                                 package: 'khmer_fonts',
+                                                decoration: isInserted
+                                                    ? TextDecoration.lineThrough
+                                                    : TextDecoration.none,
+                                                decorationColor:
+                                                    AppColor.LIGHTBLUE,
+                                                decorationThickness: 2,
                                               ),
                                             ),
                                             // Display money only if it is not empty
@@ -637,6 +648,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                           label: 'ឈ្មោះភ្ញៀវ',
                                           controller: nameController,
                                           focusNode: nameFN,
+                                          onEditingComplete: () {
+                                            nameFN.unfocus();
+                                          },
                                         ),
                                         // Replace the status text field with a radio button group.
                                         Row(
@@ -754,7 +768,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           },
                                           child: AnimatedSwitcher(
                                             duration:
-                                                Duration(milliseconds: 300),
+                                                Duration(milliseconds: 400),
                                             transitionBuilder: (Widget child,
                                                 Animation<double> animation) {
                                               return ScaleTransition(
@@ -812,7 +826,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         ),
                                         Container(
-                                          width: 160,
+                                          width: 250,
                                           height: 40,
                                           decoration: BoxDecoration(
                                             borderRadius:
@@ -826,12 +840,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                             children: [
                                               AnimatedPositioned(
                                                 duration:
-                                                    Duration(milliseconds: 250),
+                                                    Duration(milliseconds: 500),
                                                 curve: Curves.easeInOut,
-                                                left: isRiel ? 2 : 80,
-                                                right: isRiel ? 80 : 2,
+                                                left: isRiel ? 1 : 125,
+                                                right: isRiel ? 125 : 1,
                                                 child: Container(
-                                                  width: 78,
+                                                  width: 125,
                                                   height: 36,
                                                   decoration: BoxDecoration(
                                                     color: AppColor
@@ -851,6 +865,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 children: [
                                                   Expanded(
                                                     child: GestureDetector(
+                                                      behavior: HitTestBehavior
+                                                          .opaque,
                                                       onTap: () {
                                                         setState(() {
                                                           isRiel = true;
@@ -881,6 +897,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   ),
                                                   Expanded(
                                                     child: GestureDetector(
+                                                      behavior: HitTestBehavior
+                                                          .opaque,
                                                       onTap: () {
                                                         setState(() {
                                                           isRiel = false;
@@ -916,7 +934,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
 
                                         AnimatedSwitcher(
-                                          duration: Duration(milliseconds: 300),
+                                          duration: Duration(milliseconds: 500),
                                           transitionBuilder:
                                               (child, animation) {
                                             // A combined slide & fade transition:
@@ -945,6 +963,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   isRiel ? rielFN : dollarFN,
                                               keyboardType:
                                                   TextInputType.number,
+                                              onEditingComplete: () {
+                                                isRiel
+                                                    ? rielFN.unfocus()
+                                                    : dollarFN.unfocus();
+                                              },
                                             ),
                                           ),
                                         ),
@@ -1015,13 +1038,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ],
                                     ),
                                   ),
-                                  SizedBox(height: 18),
+                                  SizedBox(height: 32),
                                   Center(
                                     child: Text(
                                       'កម្មវិធីជំនាន់ទី ${_sheetsService.toKhmerNumber(appVersion)}',
                                       style: TextStyle(
                                         color: AppColor.WHITE,
-                                        fontSize: 18,
+                                        fontSize: 16,
                                         fontFamily: KhmerFonts.preahvihear,
                                         package: 'khmer_fonts',
                                       ),
@@ -1084,6 +1107,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Function(String)? onFieldSubmitted,
     Function()? onEditingComplete,
     TextInputType? keyboardType,
+    TextInputAction? textInputAction,
   }) {
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: controller,
@@ -1092,7 +1116,7 @@ class _HomeScreenState extends State<HomeScreen> {
           key: key,
           controller: controller,
           focusNode: focusNode,
-          textInputAction: TextInputAction.next,
+          textInputAction: textInputAction ?? TextInputAction.done,
           keyboardType: keyboardType ?? TextInputType.text,
           decoration: InputDecoration(
             labelStyle: TextStyle(

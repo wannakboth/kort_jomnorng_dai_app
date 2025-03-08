@@ -46,3 +46,6 @@ app.*.map.json
 
 # API
 api/venv
+
+# FVM Version Cache
+.fvm/
